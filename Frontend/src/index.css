@@ -1,0 +1,74 @@
+@import "tailwindcss";
+
+#root{
+    font-family: "Inter",sans-serif;
+    font-optical-sizing: auto;
+    font-style: normal;
+}
+
+/* Custom Toast Styles */
+.toast-custom {
+  font-family: "Inter", sans-serif !important;
+}
+
+/* Success toast styling */
+[data-sonner-toast][data-type="success"] {
+  background: linear-gradient(135deg, #10b981 0%, #059669 100%) !important;
+  border: 1px solid #10b981 !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-title] {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+[data-sonner-toast][data-type="success"] [data-description] {
+  color: #d1fae5 !important;
+  opacity: 0.9 !important;
+}
+
+/* Error toast styling */
+[data-sonner-toast][data-type="error"] {
+  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%) !important;
+  border: 1px solid #ef4444 !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-title] {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+[data-sonner-toast][data-type="error"] [data-description] {
+  color: #fecaca !important;
+  opacity: 0.9 !important;
+}
+
+/* Info toast styling */
+[data-sonner-toast][data-type="info"] {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%) !important;
+  border: 1px solid #3b82f6 !important;
+  color: white !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-title] {
+  color: white !important;
+  font-weight: 600 !important;
+}
+
+[data-sonner-toast][data-type="info"] [data-description] {
+  color: #dbeafe !important;
+  opacity: 0.9 !important;
+}
+
+/* General toast improvements */
+[data-sonner-toast] {
+  transform: translateX(0) !important;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+[data-sonner-toast]:hover {
+  transform: translateX(-5px) !important;
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.15), 0 10px 10px -5px rgb(0 0 0 / 0.1) !important;
+}
