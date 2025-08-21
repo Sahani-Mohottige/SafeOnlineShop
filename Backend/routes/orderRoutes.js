@@ -9,10 +9,10 @@ const router = express.Router();
 //@access Private
 router.get('/my-orders', protect, async (req, res) => {
     try {
-        //find order for the authenticated user
+        //find order for the authenticated user (using Auth0 user)
         const orders = await Order.find({ user: req.user._id }).sort({ 
             createdAt: -1 });//sort by most recent orders first
-        res.status(200).json(orders);
+        res.status(200).json({ orders });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Server error' });
@@ -25,16 +25,15 @@ router.get('/my-orders', protect, async (req, res) => {
 router.get("/:id", protect, async (req, res) => {
     console.log("Order ID requested:", req.params.id);
     try{
-        const order =await Order.findById(req.params.id).populate(
-        'user',
-        'name email'
-    )
-    if(!order){
-        return res.status(404).json({ message: 'Order not found' });
-    }
-    //return full order details
-    res.json(order);
-    
+        const order = await Order.findOne({ _id: req.params.id, user: req.user._id }).populate(
+            'user',
+            'name email'
+        );
+        if(!order){
+            return res.status(404).json({ message: 'Order not found or access denied' });
+        }
+        //return full order details
+        res.json(order);
     }catch(error){
         console.error(error);
         res.status(500).json({ message: 'Server error' });

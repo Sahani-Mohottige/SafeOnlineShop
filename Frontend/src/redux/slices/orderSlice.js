@@ -4,12 +4,12 @@ import axios from "axios";
 
 export const fetchUserOrders = createAsyncThunk(
   "orders/fetchUserOrders",
-  async (_, { rejectWithValue }) => {
+  async (token, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders/my-orders`, 
         {
             headers:{
-                Authorization: `Bearer ${localStorage.getItem('userToken')}`,
+                Authorization: `Bearer ${token}`,
             },
         }
       );
@@ -23,12 +23,12 @@ export const fetchUserOrders = createAsyncThunk(
 //async thunk to fetch order details by Id
 export const fetchOrderDetails = createAsyncThunk(
   "orders/fetchOrderDetails",
-  async (orderId, { rejectWithValue }) => {
+  async ({ orderId, token }, { rejectWithValue }) => {
     try {
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/orders/${orderId}`, 
         {
             headers:{
-                Authorization: `Bearer ${localStorage.getItem('userToken')}`,
+                Authorization: `Bearer ${token}`,
             },
         }
       );
