@@ -25,12 +25,13 @@ const calculateTotalItems = (products) => {
 // Fetch cart
 export const fetchCart = createAsyncThunk(
   "cart/fetchCart",
-  async ({ userId, guestId }, { rejectWithValue }) => {
+  async ({ userId, guestId, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
-    // console.log("Calling fetchCart API:", url, { userId, guestId });
-
     try {
-      const response = await axios.get(url, { params: { userId, guestId } });
+      const response = await axios.get(url, {
+        params: { userId, guestId },
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       return response.data;
     } catch (error) {
       console.error("fetchCart error:", error?.message || error);
@@ -42,10 +43,8 @@ export const fetchCart = createAsyncThunk(
 // Add to cart
 export const addToCart = createAsyncThunk(
   "cart/addToCart",
-  async ({ productId, quantity, size, color, userId, guestId }, { rejectWithValue }) => {
+  async ({ productId, quantity, size, color, userId, guestId, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
-    // console.log("Calling addToCart API:", url);
-
     try {
       const response = await axios.post(url, {
         productId,
@@ -54,6 +53,8 @@ export const addToCart = createAsyncThunk(
         color,
         userId,
         guestId,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       return response.data;
     } catch (error) {
@@ -66,10 +67,8 @@ export const addToCart = createAsyncThunk(
 // Update item quantity
 export const updateCartItemQuantity = createAsyncThunk(
   "cart/updateCartItemQuantity",
-  async ({ productId, quantity, userId, guestId, size, color }, { rejectWithValue }) => {
+  async ({ productId, quantity, userId, guestId, size, color, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
-    // console.log("Calling updateCartItemQuantity API:", url);
-
     try {
       const response = await axios.put(url, {
         productId,
@@ -78,6 +77,8 @@ export const updateCartItemQuantity = createAsyncThunk(
         guestId,
         size,
         color,
+      }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       return response.data;
     } catch (error) {
@@ -90,13 +91,12 @@ export const updateCartItemQuantity = createAsyncThunk(
 // Remove item
 export const removeFromCart = createAsyncThunk(
   "cart/removeFromCart",
-  async ({ productId, userId, guestId, size, color }, { rejectWithValue }) => {
+  async ({ productId, userId, guestId, size, color, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
-    // console.log("Calling removeFromCart API:", url);
-
     try {
       const response = await axios.delete(url, {
         data: { productId, userId, guestId, size, color },
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       return response.data;
     } catch (error) {
@@ -109,22 +109,19 @@ export const removeFromCart = createAsyncThunk(
 // Merge guest cart
 export const mergeGuestCart = createAsyncThunk(
   "cart/mergeGuestCart",
-  async ({ userId, guestId }, { rejectWithValue }) => {
+  async ({ userId, guestId, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart/merge`;
-    // console.log("Calling mergeGuestCart API:", url);
-
     try {
       const response = await axios.post(url, { userId, guestId }, {
-        headers: { Authorization: `Bearer ${localStorage.getItem("userToken")}` },
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
       });
       return response.data;
     } catch (error) {
-      // If backend returns 404 with "No cart found for guest", treat as success (no merge needed)
       if (
         error.response?.status === 404 &&
         error.response?.data?.message === "No cart found for guest"
       ) {
-        return {}; // or return a default cart object if needed
+        return {};
       }
       console.error("mergeGuestCart error:", error?.message || error);
       return rejectWithValue(error.response?.data || { message: "Network error" });
@@ -135,10 +132,12 @@ export const mergeGuestCart = createAsyncThunk(
 // Clear cart on server (for logged-in users)
 export const clearCartServer = createAsyncThunk(
   "cart/clearCartServer",
-  async ({ userId, guestId }, { rejectWithValue }) => {
+  async ({ userId, guestId, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart/clear`;
     try {
-      const response = await axios.post(url, { userId, guestId });
+      const response = await axios.post(url, { userId, guestId }, {
+        headers: token ? { Authorization: `Bearer ${token}` } : {}
+      });
       return response.data;
     } catch (error) {
       console.error("clearCartServer error:", error?.message || error);

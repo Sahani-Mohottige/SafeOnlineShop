@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { useAuth0 } from "@auth0/auth0-react";
 import { fetchCart, removeFromCart, updateCartItemQuantity } from "../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 
@@ -6,6 +7,7 @@ import { RiDeleteBin3Line } from "react-icons/ri";
 import { toast } from "sonner";
 
 const CartContents = ({ cart, userId, guestId }) => {
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const dispatch = useDispatch();
   const { loading, error } = useSelector((state) => state.cart);
   const { user } = useSelector((state) => state.auth);
@@ -20,6 +22,10 @@ const CartContents = ({ cart, userId, guestId }) => {
   // Handle quantity increase
   const handleIncreaseQuantity = async (product) => {
     try {
+      let token = "";
+      if (isAuthenticated) {
+        token = await getAccessTokenSilently();
+      }
       await dispatch(updateCartItemQuantity({
         productId: product.productId,
         quantity: product.quantity + 1,
@@ -27,6 +33,7 @@ const CartContents = ({ cart, userId, guestId }) => {
         guestId,
         size: product.size,
         color: product.color,
+        token
       })).unwrap();
     } catch (err) {
       console.error("Failed to update quantity:", err);
@@ -40,6 +47,10 @@ const CartContents = ({ cart, userId, guestId }) => {
   const handleDecreaseQuantity = async (product) => {
     if (product.quantity > 1) {
       try {
+        let token = "";
+        if (isAuthenticated) {
+          token = await getAccessTokenSilently();
+        }
         await dispatch(updateCartItemQuantity({
           productId: product.productId,
           quantity: product.quantity - 1,
@@ -47,6 +58,7 @@ const CartContents = ({ cart, userId, guestId }) => {
           guestId,
           size: product.size,
           color: product.color,
+          token
         })).unwrap();
       } catch (err) {
         console.error("Failed to update quantity:", err);
@@ -60,12 +72,17 @@ const CartContents = ({ cart, userId, guestId }) => {
   // Handle remove from cart
   const handleRemoveFromCart = async (product) => {
     try {
+      let token = "";
+      if (isAuthenticated) {
+        token = await getAccessTokenSilently();
+      }
       await dispatch(removeFromCart({
         productId: product.productId,
         userId: userId || user?._id,
         guestId,
         size: product.size,
         color: product.color,
+        token
       })).unwrap();
       toast.success("Item removed from cart", {
         description: `${product.name} has been removed from your cart.`
