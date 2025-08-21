@@ -1,12 +1,11 @@
 import { Navigate } from 'react-router-dom';
 import React from 'react';
-import { useSelector } from 'react-redux';
+import { useAuth0 } from '@auth0/auth0-react';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, loading } = useSelector((state) => state.auth);
-  const isAuthenticated = !!user;
+  const { isAuthenticated, isLoading } = useAuth0();
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-lg">Loading...</div>

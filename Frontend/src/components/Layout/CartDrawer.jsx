@@ -6,6 +6,7 @@ import { fetchCart } from "../../redux/slices/cartSlice";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   const dispatch = useDispatch();
@@ -13,6 +14,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   const { user, guestId } = useSelector((state) => state.auth);
   const { cart, loading, error } = useSelector((state) => state.cart);
   const userId = user ? user._id : null;
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
   const scrollRef = useRef(null);
   const drawerRef = useRef(null);
   
@@ -25,21 +27,31 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   // console.log("CartDrawer - userId:", userId);
   // console.log("CartDrawer - guestId:", guestId);
 
+  // Helper to fetch cart with token if authenticated
+  const fetchCartWithToken = async () => {
+    if (userId || guestId) {
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+        dispatch(fetchCart({ userId, guestId, token }));
+      } else {
+        dispatch(fetchCart({ userId, guestId }));
+      }
+    }
+  };
+
   // Fetch cart when component mounts or user/guest changes
   useEffect(() => {
-    if (userId || guestId) {
-     // console.log("Fetching cart for:", { userId, guestId });
-      dispatch(fetchCart({ userId, guestId }));
-    }
-  }, [dispatch, userId, guestId]);
+    fetchCartWithToken();
+    // eslint-disable-next-line
+  }, [userId, guestId]);
 
   // Refetch cart when drawer opens
   useEffect(() => {
-    if (drawerOpen && (userId || guestId)) {
-    //  console.log("Cart drawer opened - refreshing cart");
-      dispatch(fetchCart({ userId, guestId }));
+    if (drawerOpen) {
+      fetchCartWithToken();
     }
-  }, [drawerOpen, dispatch, userId, guestId]);
+    // eslint-disable-next-line
+  }, [drawerOpen]);
   
   const handleCheckout = () => {
     toggleCartDrawer();
@@ -133,7 +145,7 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
               <p className="text-red-500 mb-2">Error loading cart</p>
               <p className="text-sm text-gray-400">{error}</p>
               <button 
-                onClick={() => dispatch(fetchCart({ userId, guestId }))}
+                onClick={fetchCartWithToken}
                 className="mt-2 text-blue-500 hover:text-blue-700 text-sm"
               >
                 Try again
