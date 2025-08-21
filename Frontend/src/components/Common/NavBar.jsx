@@ -10,13 +10,13 @@ import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
 import { useLocation } from "react-router-dom";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useSelector } from "react-redux";
 
 const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
-  const { user } = useSelector((state) => state.auth);
-  const isAuthenticated = !!user;
+  const { isAuthenticated, loginWithRedirect } = useAuth0();
   const { cart } = useSelector((state) => state.cart);
   const cartItemCount =
     cart?.products?.reduce((total, product) => total + product.quantity, 0) || 0;
@@ -79,16 +79,18 @@ const NavBar = () => {
           {/*Rright-Icons */}
           <div className="flex items-center space-x-4">
             {!isAuthenticated ? (
-              <Link 
-                to="/login" 
+              <button
+                onClick={() => loginWithRedirect()}
                 className="bg-black text-white px-6 py-2 rounded-md hover:bg-gray-800 transition text-xl font-medium"
               >
                 Login
-              </Link>
+              </button>
             ) : (
-              <Link to="/profile" className="hover:text-black">
-                <HiOutlineUser className="h-6 w-6 text-gray-700" />
-              </Link>
+              <>
+                <Link to="/profile" className="hover:text-black">
+                  <HiOutlineUser className="h-6 w-6 text-gray-700" />
+                </Link>
+              </>
             )}
             <button
               onClick={toggleCartDrawer}

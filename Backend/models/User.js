@@ -17,7 +17,6 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
       minlength: 6,
     },
     role: {
@@ -25,22 +24,28 @@ const userSchema = new mongoose.Schema(
       enum: ["customer", "admin"],  
       default: "customer", 
     },
+    auth0Id: {
+      type: String,
+      unique: true,
+      sparse: true, // allow null for legacy users
+    },
   },
   {
     timestamps: true,
   },
 );
 
-// Password Hash Middleware
+// Password Hash Middleware (only for legacy users)
 userSchema.pre("save", async function (next) {
-  if (!this.isModified("password")) return next();
+  if (!this.isModified("password") || !this.password) return next();
   const salt = await bcrypt.genSalt(10);
   this.password = await bcrypt.hash(this.password, salt);
   next();
 });
 
-//  Compare plain and hashed password
+//  Compare plain and hashed password (legacy users)
 userSchema.methods.matchPassword = async function (enteredPassword) {
+  if (!this.password) return false;
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
