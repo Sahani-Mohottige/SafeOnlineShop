@@ -101,9 +101,35 @@ router.post("/", async (req, res) => {
 // @access Public
 router.put("/", async (req, res) => {
   const { productId, quantity, size, color, guestId, userId } = req.body;
+  // Debug log incoming request
+  console.log("PUT /api/cart request body:", req.body);
   try {
     let cart = await getCart(userId, guestId);
-    if (!cart) return res.status(404).json({ message: "Cart not found" });
+    if (!cart) {
+      console.log("PUT /api/cart: Cart not found for", { userId, guestId });
+      // Fallback: create a new cart for user/guest with the requested product
+      const product = await Product.findById(productId);
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      const newCart = await Cart.create({
+        user: userId ? userId : undefined,
+        guestId: guestId ? guestId : "guest_" + new Date().getTime(),
+        products: [
+          {
+            productId,
+            name: product.name,
+            image: product.images[0].url,
+            price: Number(product.price),
+            size,
+            color,
+            quantity,
+          },
+        ],
+        totalPrice: Number(product.price) * quantity,
+        totalItems: quantity,
+      });
+      console.log("PUT /api/cart: Created new cart", newCart);
+      return res.status(201).json(newCart);
+    }
 
     const productIndex = cart.products.findIndex(
       (p) =>
@@ -113,10 +139,22 @@ router.put("/", async (req, res) => {
     );
 
     if (productIndex === -1) {
-      return res.status(404).json({ message: "Product not found in cart" });
+      console.log("PUT /api/cart: Product not found in cart", { productId, size, color });
+      // Add product to existing cart, preserve other items
+      const product = await Product.findById(productId);
+      if (!product) return res.status(404).json({ message: "Product not found" });
+      cart.products.push({
+        productId,
+        name: product.name,
+        image: product.images[0].url,
+        price: Number(product.price),
+        size,
+        color,
+        quantity,
+      });
+    } else {
+      cart.products[productIndex].quantity = quantity;
     }
-
-    cart.products[productIndex].quantity = quantity;
     // Recalculate total price
     cart.totalPrice = cart.products.reduce(
       (acc, item) => acc + item.price * item.quantity,
@@ -128,9 +166,10 @@ router.put("/", async (req, res) => {
     );
 
     await cart.save();
+    console.log("PUT /api/cart: Updated cart", cart);
     return res.status(200).json(cart);
   } catch (error) {
-    console.error(error);
+    console.error("PUT /api/cart error:", error);
     res.status(500).json({ message: "Server Error" });
   }
 });

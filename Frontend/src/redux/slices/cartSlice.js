@@ -30,7 +30,7 @@ export const fetchCart = createAsyncThunk(
     try {
       const response = await axios.get(url, {
         params: { userId, guestId },
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
       return response.data;
     } catch (error) {
@@ -54,7 +54,7 @@ export const addToCart = createAsyncThunk(
         userId,
         guestId,
       }, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
       return response.data;
     } catch (error) {
@@ -70,6 +70,10 @@ export const updateCartItemQuantity = createAsyncThunk(
   async ({ productId, quantity, userId, guestId, size, color, token }, { rejectWithValue }) => {
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
     try {
+      // Debug log request payload and headers
+      console.log("updateCartItemQuantity request:", {
+        productId, quantity, userId, guestId, size, color, token
+      });
       const response = await axios.put(url, {
         productId,
         quantity,
@@ -78,11 +82,15 @@ export const updateCartItemQuantity = createAsyncThunk(
         size,
         color,
       }, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
+      console.log("updateCartItemQuantity response:", response.data);
       return response.data;
     } catch (error) {
       console.error("updateCartItemQuantity error:", error?.message || error);
+      if (error.response) {
+        console.error("updateCartItemQuantity error response:", error.response.data);
+      }
       return rejectWithValue(error.response?.data || { message: "Network error" });
     }
   }
@@ -96,7 +104,7 @@ export const removeFromCart = createAsyncThunk(
     try {
       const response = await axios.delete(url, {
         data: { productId, userId, guestId, size, color },
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
       return response.data;
     } catch (error) {
@@ -113,7 +121,7 @@ export const mergeGuestCart = createAsyncThunk(
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart/merge`;
     try {
       const response = await axios.post(url, { userId, guestId }, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
       return response.data;
     } catch (error) {
@@ -136,7 +144,7 @@ export const clearCartServer = createAsyncThunk(
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart/clear`;
     try {
       const response = await axios.post(url, { userId, guestId }, {
-        headers: token ? { Authorization: `Bearer ${token}` } : {}
+        headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
       return response.data;
     } catch (error) {

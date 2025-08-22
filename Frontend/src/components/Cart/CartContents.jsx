@@ -1,10 +1,10 @@
 import React, { useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { fetchCart, removeFromCart, updateCartItemQuantity } from "../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import { RiDeleteBin3Line } from "react-icons/ri";
 import { toast } from "sonner";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const CartContents = ({ cart, userId, guestId }) => {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -14,27 +14,43 @@ const CartContents = ({ cart, userId, guestId }) => {
   
   // Fetch cart on component mount if not provided as prop
   useEffect(() => {
-    if (!cart) {
-      dispatch(fetchCart({ userId: user?._id, guestId }));
-    }
-  }, [dispatch, user, guestId, cart]);
+    const fetch = async () => {
+      if (!cart) {
+        let token = "";
+        if (isAuthenticated) {
+          token = await getAccessTokenSilently();
+        }
+        dispatch(fetchCart({ userId: user?._id, guestId, token }));
+      }
+    };
+    fetch();
+  }, [dispatch, user, guestId, cart, isAuthenticated, getAccessTokenSilently]);
 
   // Handle quantity increase
   const handleIncreaseQuantity = async (product) => {
     try {
       let token = "";
-      if (isAuthenticated) {
-        token = await getAccessTokenSilently();
-      }
-      await dispatch(updateCartItemQuantity({
+      let payload = {
         productId: product.productId,
         quantity: product.quantity + 1,
-        userId: userId || user?._id,
-        guestId,
         size: product.size,
-        color: product.color,
-        token
-      })).unwrap();
+        color: product.color
+      };
+      if (isAuthenticated) {
+        token = await getAccessTokenSilently();
+        payload.userId = userId ? userId : (user && user._id ? user._id : undefined);
+        payload.token = token;
+      } else {
+        payload.guestId = guestId ? guestId : localStorage.getItem('guestId');
+      }
+      // Prevent cart action if both userId and guestId are missing
+      if (!payload.userId && !payload.guestId) {
+        toast.error("Cart action failed: No user or guest ID found.", {
+          description: "Please refresh or log in again."
+        });
+        return;
+      }
+      await dispatch(updateCartItemQuantity(payload)).unwrap();
     } catch (err) {
       console.error("Failed to update quantity:", err);
       toast.error("Failed to update quantity", {
@@ -48,18 +64,26 @@ const CartContents = ({ cart, userId, guestId }) => {
     if (product.quantity > 1) {
       try {
         let token = "";
-        if (isAuthenticated) {
-          token = await getAccessTokenSilently();
-        }
-        await dispatch(updateCartItemQuantity({
+        let payload = {
           productId: product.productId,
           quantity: product.quantity - 1,
-          userId: userId || user?._id,
-          guestId,
           size: product.size,
-          color: product.color,
-          token
-        })).unwrap();
+          color: product.color
+        };
+        if (isAuthenticated) {
+          token = await getAccessTokenSilently();
+          payload.userId = userId ? userId : (user && user._id ? user._id : undefined);
+          payload.token = token;
+        } else {
+          payload.guestId = guestId ? guestId : localStorage.getItem('guestId');
+        }
+        if (!payload.userId && !payload.guestId) {
+          toast.error("Cart action failed: No user or guest ID found.", {
+            description: "Please refresh or log in again."
+          });
+          return;
+        }
+        await dispatch(updateCartItemQuantity(payload)).unwrap();
       } catch (err) {
         console.error("Failed to update quantity:", err);
         toast.error("Failed to update quantity", {
@@ -73,17 +97,25 @@ const CartContents = ({ cart, userId, guestId }) => {
   const handleRemoveFromCart = async (product) => {
     try {
       let token = "";
+      let payload = {
+        productId: product.productId,
+        size: product.size,
+        color: product.color
+      };
       if (isAuthenticated) {
         token = await getAccessTokenSilently();
+        payload.userId = userId ? userId : (user && user._id ? user._id : undefined);
+        payload.token = token;
+      } else {
+        payload.guestId = guestId ? guestId : localStorage.getItem('guestId');
       }
-      await dispatch(removeFromCart({
-        productId: product.productId,
-        userId: userId || user?._id,
-        guestId,
-        size: product.size,
-        color: product.color,
-        token
-      })).unwrap();
+      if (!payload.userId && !payload.guestId) {
+        toast.error("Cart action failed: No user or guest ID found.", {
+          description: "Please refresh or log in again."
+        });
+        return;
+      }
+      await dispatch(removeFromCart(payload)).unwrap();
       toast.success("Item removed from cart", {
         description: `${product.name} has been removed from your cart.`
       });

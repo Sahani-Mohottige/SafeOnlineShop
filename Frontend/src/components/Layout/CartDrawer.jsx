@@ -3,10 +3,10 @@ import React, { useEffect, useRef } from "react";
 import CartContents from "../Cart/CartContents";
 import { IoMdClose } from "react-icons/io";
 import { fetchCart } from "../../redux/slices/cartSlice";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import { useAuth0 } from "@auth0/auth0-react";
 
 const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   const dispatch = useDispatch();
@@ -27,23 +27,27 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
   // console.log("CartDrawer - userId:", userId);
   // console.log("CartDrawer - guestId:", guestId);
 
-  // Helper to fetch cart with token if authenticated
+  // Helper to fetch cart with correct ID
   const fetchCartWithToken = async () => {
-    if (userId || guestId) {
-      if (isAuthenticated) {
-        const token = await getAccessTokenSilently();
-        dispatch(fetchCart({ userId, guestId, token }));
-      } else {
-        dispatch(fetchCart({ userId, guestId }));
-      }
+    if (isAuthenticated && userId) {
+      const token = await getAccessTokenSilently();
+      dispatch(fetchCart({ userId, token }));
+    } else if (!isAuthenticated && guestId) {
+      dispatch(fetchCart({ guestId }));
     }
   };
 
   // Fetch cart when component mounts or user/guest changes
   useEffect(() => {
     fetchCartWithToken();
+    // Clear guestId after login
+    if (isAuthenticated && guestId) {
+      localStorage.removeItem('guestId');
+      // Optionally, dispatch an action to clear guestId from Redux
+      // dispatch(generateNewGuestId()); // or a custom clearGuestId action
+    }
     // eslint-disable-next-line
-  }, [userId, guestId]);
+  }, [userId, guestId, isAuthenticated]);
 
   // Refetch cart when drawer opens
   useEffect(() => {
@@ -112,23 +116,23 @@ const CartDrawer = ({ drawerOpen, toggleCartDrawer }) => {
         </div>
 
        {/* Guest login message */}
-{!user && (
-  <div className="bg-green-50 border border-green-300 text-green-800 px-4 py-2 rounded-lg mb-6 shadow-sm flex items-center justify-between">
-    <p className="text-sm font-medium whitespace-nowrap">
-      To save your cart and access it later, please log in.
-    </p>
-    <button
-      onClick={() => {
-        toggleCartDrawer();
-        navigate("/login");
-      }}
-      className="ml-4 text-sm bg-green-600 hover:bg-green-700 transition-colors duration-200 text-white font-semibold px-4 py-1 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
-      aria-label="Log in to save cart"
-    >
-      Log In
-    </button>
-  </div>
-)}
+ {!isAuthenticated && (
+   <div className="bg-green-50 border border-green-300 text-green-800 px-4 py-2 rounded-lg mb-6 shadow-sm flex items-center justify-between">
+     <p className="text-sm font-medium whitespace-nowrap">
+       To save your cart and access it later, please log in.
+     </p>
+     <button
+       onClick={() => {
+         toggleCartDrawer();
+         navigate("/login");
+       }}
+       className="ml-4 text-sm bg-green-600 hover:bg-green-700 transition-colors duration-200 text-white font-semibold px-4 py-1 rounded-lg shadow-md focus:outline-none focus:ring-2 focus:ring-green-500"
+       aria-label="Log in to save cart"
+     >
+       Log In
+     </button>
+   </div>
+ )}
 
         {/* Scrollable cart content */}
         <div 
