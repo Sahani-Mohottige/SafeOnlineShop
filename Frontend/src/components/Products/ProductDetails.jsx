@@ -10,6 +10,7 @@ import {
 import ProductGrid from "./ProductGrid";
 import { addToCart } from "../../redux/slices/cartSlice";
 import { toast } from "sonner";
+import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch } from "react-redux";
 import { useParams } from "react-router-dom";
 import { useSelector } from "react-redux";
@@ -29,6 +30,7 @@ const ProductDetails = ({ productId }) => {
 
   const productfetchId = productId || id;
   const userId = user ? user._id : null;
+  const { getAccessTokenSilently, isAuthenticated } = useAuth0();
 
   useEffect(() => {
     if (productfetchId) {
@@ -66,16 +68,11 @@ const ProductDetails = ({ productId }) => {
 
     setIsButtonDisabled(true);
 
-    // console.log("Adding to cart with data:", {
-    //   productId: productfetchId,
-    //   quantity,
-    //   size: selectedSize,
-    //   color: selectedColor,
-    //   userId,
-    //   guestId,
-    // });
-
     try {
+      let token = "";
+      if (isAuthenticated) {
+        token = await getAccessTokenSilently();
+      }
       const result = await dispatch(
         addToCart({
           productId: productfetchId,
@@ -84,22 +81,19 @@ const ProductDetails = ({ productId }) => {
           color: selectedColor,
           userId,
           guestId,
+          token,
         })
       );
-
-    //  console.log("Add to cart result:", result);
 
       if (addToCart.fulfilled.match(result)) {
         toast.success("Product added to cart successfully!", {
           description: `${quantity} ${quantity === 1 ? 'item' : 'items'} added in ${selectedSize} size and ${selectedColor} color.`,
           duration: 2000,
         });
-        
         setSelectedSize("");
         setSelectedColor("");
         setQuantity(1);
       } else {
-       // console.error("Add to cart failed:", result.payload);
         toast.error("Failed to add product to cart", {
           description: result.payload?.message || "Something went wrong",
           duration: 2000,

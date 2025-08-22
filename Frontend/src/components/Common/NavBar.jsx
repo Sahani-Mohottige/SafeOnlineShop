@@ -9,14 +9,14 @@ import CartDrawer from "../Layout/CartDrawer";
 import { IoMdClose } from "react-icons/io";
 import { Link } from "react-router-dom";
 import SearchBar from "./SearchBar";
-import { useLocation } from "react-router-dom";
 import { useAuth0 } from "@auth0/auth0-react";
+import { useLocation } from "react-router-dom";
 import { useSelector } from "react-redux";
 
 const NavBar = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [navDrawerOpen, setNavDrawerOpen] = useState(false);
-  const { isAuthenticated, loginWithRedirect } = useAuth0();
+  const { isAuthenticated, loginWithRedirect, logout } = useAuth0();
   const { cart } = useSelector((state) => state.cart);
   const cartItemCount =
     cart?.products?.reduce((total, product) => total + product.quantity, 0) || 0;
@@ -90,6 +90,20 @@ const NavBar = () => {
                 <Link to="/profile" className="hover:text-black">
                   <HiOutlineUser className="h-6 w-6 text-gray-700" />
                 </Link>
+                <button
+                  onClick={() => {
+                    // Secure logout
+                    localStorage.removeItem('userToken');
+                    localStorage.removeItem('userInfo');
+                    localStorage.removeItem('cart');
+                    localStorage.removeItem('guestId');
+                    sessionStorage.clear();
+                    logout({ returnTo: window.location.origin });
+                  }}
+                  className="ml-4 bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition"
+                >
+                  Log Out
+                </button>
               </>
             )}
             <button

@@ -41,9 +41,12 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
   };
 
+  // Secure logout: only clear local/session storage here
   const logout = () => {
-    localStorage.removeItem('userToken'); // Changed from 'token' to 'userToken'
-    localStorage.removeItem('userInfo'); // Changed from 'user' to 'userInfo'
+    localStorage.removeItem('userToken');
+    localStorage.removeItem('userInfo');
+    localStorage.removeItem('cart');
+    localStorage.removeItem('guestId');
     sessionStorage.clear();
     setUser(null);
     setIsAuthenticated(false);
