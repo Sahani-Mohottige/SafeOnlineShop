@@ -23,15 +23,16 @@ const purchaseSchema = new mongoose.Schema({
     type: String,
     required: true
   },
-  productName: {
-    type: String,
-    required: true
-  },
-  quantity: {
-    type: Number,
-    required: true,
-    min: 1
-  },
+  products: [
+    {
+      productId: { type: String, required: true },
+      name: { type: String, required: true },
+      quantity: { type: Number, required: true, min: 1 },
+      size: { type: String },
+      color: { type: String },
+      price: { type: Number, required: true }
+    }
+  ],
   message: {
     type: String
   },

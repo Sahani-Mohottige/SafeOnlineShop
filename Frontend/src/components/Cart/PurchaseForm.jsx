@@ -1,19 +1,19 @@
 import React, { useState } from "react";
+
 import { useAuth0 } from "@auth0/auth0-react";
+import { useSelector } from "react-redux";
 
 const districts = [
   "Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Kurunegala", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura"
 ];
-const products = [
-  "T-Shirt", "Dress", "Shoes", "Bag", "Watch", "Sunglasses", "Hat", "Jeans", "Jacket", "Skirt"
-];
+// products will be taken from cart
 const deliveryTimes = ["10 AM", "11 AM", "12 PM"];
 
 function PurchaseForm({ onPurchase }) {
   const { getAccessTokenSilently } = useAuth0();
+  const cart = useSelector((state) => state.cart.cart);
+  const cartProducts = cart?.products || [];
   const [form, setForm] = useState({
-    productName: "T-Shirt",
-    quantity: 1,
     dateOfPurchase: "",
     deliveryTime: "10 AM",
     deliveryLocation: districts[0],
@@ -46,16 +46,34 @@ function PurchaseForm({ onPurchase }) {
       setError("Purchases cannot be made on Sundays.");
       return;
     }
+    if (cartProducts.length === 0) {
+      setError("Your cart is empty.");
+      return;
+    }
     setLoading(true);
     try {
       const token = await getAccessTokenSilently();
+      const payload = {
+        products: cartProducts.map(p => ({
+          productId: p.productId,
+          name: p.name,
+          quantity: p.quantity,
+          size: p.size,
+          color: p.color,
+          price: p.price,
+        })),
+        dateOfPurchase: form.dateOfPurchase,
+        deliveryTime: form.deliveryTime,
+        deliveryLocation: form.deliveryLocation,
+        message: form.message
+      };
       const res = await fetch("/api/purchases", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(form),
+        body: JSON.stringify(payload),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -63,8 +81,6 @@ function PurchaseForm({ onPurchase }) {
       } else {
         setSuccess("Purchase created successfully!");
         setForm({
-          productName: "T-Shirt",
-          quantity: 1,
           dateOfPurchase: "",
           deliveryTime: "10 AM",
           deliveryLocation: districts[0],
@@ -83,13 +99,20 @@ function PurchaseForm({ onPurchase }) {
       <h2 className="text-lg font-bold text-gray-700 mb-2">Purchase Product</h2>
       {error && <div className="text-red-500 text-sm">{error}</div>}
       {success && <div className="text-green-500 text-sm">{success}</div>}
-      <div>
-        <label className="block text-sm font-medium text-gray-600">Product</label>
-        <select name="productName" value={form.productName} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md">
-          {products.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
+      {/* Product selection removed. All cart items will be purchased. */}
+      <div className="bg-green-50 border border-green-200 rounded-md p-3 mb-2">
+        <h3 className="text-sm font-semibold text-green-700 mb-1">Products to be purchased:</h3>
+        {cartProducts.length === 0 ? (
+          <p className="text-gray-500">Your cart is empty.</p>
+        ) : (
+          <ul className="list-disc pl-5 text-gray-700">
+            {cartProducts.map((p, idx) => (
+              <li key={idx}>
+                {p.name} <span className="text-xs text-gray-500">(Qty: {p.quantity}{p.size ? `, Size: ${p.size}` : ""}{p.color ? `, Color: ${p.color}` : ""})</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-600">Quantity</label>

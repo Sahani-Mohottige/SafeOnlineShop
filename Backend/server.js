@@ -33,7 +33,7 @@ app.get("/", (req, res) => {
 //API Routes (protected)
 app.use("/api/users", protect, userRoutes);
 app.use("/api/products", productRoutes); // public
-app.use("/api/cart", protect, cartRoutes);
+app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", protect, checkoutRoutes);
 app.use("/api/orders", protect, orderRoutes);
 
