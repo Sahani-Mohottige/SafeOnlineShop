@@ -90,10 +90,11 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       state.user = null;
-      state.guestId = `guest_${new Date().getTime()}`;//reset guest ID to a new value
+      // Always set a new guestId after logout
+      state.guestId = `guest_${Date.now()}`;
       localStorage.removeItem("userInfo");
       localStorage.removeItem("userToken");
-      localStorage.setItem("guestId", state.guestId);//set new guest ID in localStorage
+      localStorage.setItem("guestId", state.guestId);
     },
     generateNewGuestId:(state) => {
       state.guestId = `guest_${new Date().getTime()}`;

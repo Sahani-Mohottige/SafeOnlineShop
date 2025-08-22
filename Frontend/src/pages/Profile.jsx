@@ -1,12 +1,9 @@
-
+import MyOrdersPage from "./MyOrdersPage";
 import React from "react";
 import { useAuth0 } from "@auth0/auth0-react";
-import MyOrdersPage from "./MyOrdersPage";
-import PurchaseForm from "../components/Cart/PurchaseForm";
-
 
 function Profile() {
-  const { user, isAuthenticated, isLoading, logout } = useAuth0();
+  const { user, isAuthenticated, isLoading } = useAuth0();
 
   if (isLoading) {
     return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
@@ -80,21 +77,11 @@ function Profile() {
                 </div>
               </div>
 
-              {/* Logout Button */}
-              <div className="pt-4 border-t border-gray-200">
-                <button 
-                  className="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-3 px-4 rounded-lg transition-all duration-200 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
-                  onClick={() => logout({ returnTo: window.location.origin })}
-                >
-                  Log Out
-                </button>
-              </div>
             </div>
           </div>
 
           {/* Right section - Purchase Form and Orders Table */}
           <div className="w-full md:w-2/3 lg:w-3/4 space-y-8">
-            <PurchaseForm />
             <MyOrdersPage />
           </div>
         </div>

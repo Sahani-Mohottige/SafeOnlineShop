@@ -77,7 +77,18 @@ router.post("/login", async (req, res) => {
 // @route   GET /api/users/profile
 // @desc    Get logged-in user's profile (Protected)
 router.get("/profile", protect, async (req, res) => {
-  res.json(req.user);
+  try {
+    if (!req.user) {
+      console.error("[DEBUG] /api/users/profile: req.user is undefined");
+      return res.status(500).json({ message: "User not found in request context" });
+    }
+    // Log user object for debugging
+    console.log("[DEBUG] /api/users/profile: req.user:", req.user);
+    res.json(req.user);
+  } catch (err) {
+    console.error("[DEBUG] /api/users/profile: Unexpected error:", err);
+    res.status(500).json({ message: "Unexpected server error", error: err.message });
+  }
 });
 
 // @route   PUT /api/users/profile
