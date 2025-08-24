@@ -1,5 +1,5 @@
-import React, { useEffect } from "react";
-import { fetchCart, mergeGuestCart } from "../redux/slices/cartSlice";
+import React, { useEffect, useRef } from "react";
+import { fetchCart, mergeGuestCart, refreshCart } from "../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 
 import App from "../App.jsx";
@@ -10,33 +10,50 @@ const Auth0CartMergeWrapper = () => {
   const { isAuthenticated, getAccessTokenSilently } = useAuth0();
   const dispatch = useDispatch();
   const guestId = useSelector((state) => state.auth.guestId);
-  const user = useSelector((state) => state.auth.user);
+  const hasMergedRef = useRef(false); // run merge only once per session
 
   useEffect(() => {
-    const mergeCart = async () => {
-      if (isAuthenticated && guestId) {
+    const loadCart = async () => {
+      if (!isAuthenticated || hasMergedRef.current) return;
+
+      try {
         const token = await getAccessTokenSilently();
-        // Fetch user profile from backend to get MongoDB _id
-        try {
-          const res = await axios.get(
-            `${import.meta.env.VITE_BACKEND_URL}/api/users/profile`,
-            { headers: { Authorization: `Bearer ${token}` } }
-          );
-          const userId = res.data._id;
-          // Update Redux auth state with MongoDB _id
-          dispatch({ type: 'auth/loginUser/fulfilled', payload: res.data });
-          await dispatch(mergeGuestCart({ userId, guestId, token }));
-          // Clear guestId from Redux and localStorage after merge
+
+        // Fetch user profile to get MongoDB _id
+        const res = await axios.get(
+          `${import.meta.env.VITE_BACKEND_URL}/api/users/profile`,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        const userId = res.data._id;
+
+        // Update Redux auth state
+        dispatch({ type: 'auth/loginUser/fulfilled', payload: res.data });
+
+        let mergedCart = null;
+
+        // Merge guest cart if it exists
+        if (guestId) {
+          mergedCart = await dispatch(mergeGuestCart({ userId, guestId, token })).unwrap();
+          dispatch(refreshCart(mergedCart));
           dispatch({ type: 'auth/generateNewGuestId' });
           localStorage.removeItem('guestId');
-          // Immediately fetch the updated user cart
-          dispatch(fetchCart({ userId, token }));
-        } catch (err) {
-          console.error("Failed to fetch user profile for cart merge:", err);
         }
+
+        // Always fetch user's previous cart (after merge if any)
+        const userCart = await dispatch(fetchCart({ userId, token })).unwrap();
+
+        // If merge happened, backend should return the merged cart; otherwise fetch previous cart
+        if (!mergedCart || !mergedCart.products || mergedCart.products.length === 0) {
+          dispatch(refreshCart(userCart));
+        }
+
+        hasMergedRef.current = true; // mark as merged/fetched
+      } catch (err) {
+        console.error("Failed to load user cart:", err);
       }
     };
-    mergeCart();
+
+    loadCart();
   }, [isAuthenticated, guestId, getAccessTokenSilently, dispatch]);
 
   return <App />;
