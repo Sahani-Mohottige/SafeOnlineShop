@@ -7,7 +7,7 @@ const districts = [
   "Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Kurunegala", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura"
 ];
 // products will be taken from cart
-const deliveryTimes = ["10 AM", "11 AM", "12 PM"];
+const deliveryTimes = ["10 AM", "11 AM", "1 PM","2 PM","3 PM","4 PM","5 PM","6 PM"];
 
 function PurchaseForm({ onPurchase }) {
   const { getAccessTokenSilently } = useAuth0();
