@@ -171,8 +171,9 @@ const cartSlice = createSlice({
     refreshCart: (state, action) => {
       const cart = action.payload;
       if (cart && typeof cart === "object" && Array.isArray(cart.products)) {
-        cart.totalItems = calculateTotalItems(cart.products);
-        state.cart = cart;
+        const cartCopy = { ...cart, products: [...cart.products] };
+        cartCopy.totalItems = calculateTotalItems(cartCopy.products);
+        state.cart = cartCopy;
         saveCartToStorage(state.cart);
       } else {
         // For debugging: log only the type of error, not the full cart object
