@@ -23,7 +23,7 @@ function Profile() {
       <div className="container mx-auto px-4 md:px-8">
         <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
           {/* Left section - Profile Info */}
-          <div className="w-full md:w-1/3 lg:w-1/4 bg-white border-2 border-gray-100 shadow-lg rounded-xl p-8">
+          <div className="w-full md:w-1/3 lg:w-1/4 bg-white border-2 border-green-300 shadow-lg rounded-xl p-8">
             <div className="space-y-6">
               {/* Welcome Header */}
               <div className="text-center">
@@ -55,7 +55,7 @@ function Profile() {
                   <label className="text-xs font-medium text-gray-500 uppercase tracking-wider">
                     Email Address
                   </label>
-                  <p className="text-gray-800 mt-1 break-all">
+                  <p className="text-black mt-1 break-all">
                     {user?.email || "-"}
                   </p>
                 </div>

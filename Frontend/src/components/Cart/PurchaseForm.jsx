@@ -1,7 +1,9 @@
 import React, { useState } from "react";
+import { clearCart, clearCartServer } from "../../redux/slices/cartSlice";
+import { useDispatch, useSelector } from "react-redux";
 
 import { useAuth0 } from "@auth0/auth0-react";
-import { useSelector } from "react-redux";
+import { useNavigate } from "react-router-dom";
 
 const districts = [
   "Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Kurunegala", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura"
@@ -10,8 +12,10 @@ const districts = [
 const deliveryTimes = ["10 AM", "11 AM", "1 PM","2 PM","3 PM","4 PM","5 PM","6 PM"];
 
 function PurchaseForm({ onPurchase }) {
+  const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
   const cart = useSelector((state) => state.cart.cart);
+  const navigate = useNavigate();
   const cartProducts = cart?.products || [];
   const [form, setForm] = useState({
     dateOfPurchase: "",
@@ -54,20 +58,29 @@ function PurchaseForm({ onPurchase }) {
     try {
       const token = await getAccessTokenSilently();
       const payload = {
-        products: cartProducts.map(p => ({
+        orderItems: cartProducts.map(p => ({
           productId: p.productId,
           name: p.name,
           quantity: p.quantity,
           size: p.size,
           color: p.color,
           price: p.price,
+          image: p.image || (p.images ? p.images[0] : ""),
         })),
+        shippingAddress: {
+          address: form.deliveryLocation,
+          city: form.deliveryLocation,
+          postalCode: "",
+          country: "Sri Lanka"
+        },
+        paymentMethod: "Cash",
+        totalPrice: cartProducts.reduce((sum, p) => sum + p.price * p.quantity, 0),
         dateOfPurchase: form.dateOfPurchase,
         deliveryTime: form.deliveryTime,
         deliveryLocation: form.deliveryLocation,
         message: form.message
       };
-      const res = await fetch("/api/purchases", {
+  const res = await fetch("http://localhost:9000/api/orders", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -86,7 +99,14 @@ function PurchaseForm({ onPurchase }) {
           deliveryLocation: districts[0],
           message: ""
         });
+        // Clear cart on backend and frontend
+        const userId = data.user || (data.user?._id);
+        const guestId = localStorage.getItem('guestId');
+        dispatch(clearCartServer({ userId, guestId, token }));
+        dispatch(clearCart());
         if (onPurchase) onPurchase(data);
+        // Navigate to Order Confirmation page with order data
+        navigate("/order-confirmation", { state: { order: data } });
       }
     } catch (err) {
       setError("Error creating purchase.");

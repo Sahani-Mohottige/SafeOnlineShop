@@ -1,43 +1,61 @@
 import React, { useEffect, useState } from "react";
 
 import { Package } from "lucide-react";
+import { cancelOrder } from "../utils/cancelOrder";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 
 const MyOrdersPage = () => {
   const navigate = useNavigate();
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
-  const [purchases, setPurchases] = useState([]);
+  const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  useEffect(() => {
-    const fetchPurchases = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        if (isAuthenticated) {
-          const token = await getAccessTokenSilently();
-          const res = await fetch("/api/purchases", {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
-          const data = await res.json();
-          if (!res.ok) {
-            setError(data.message || "Failed to fetch purchases.");
-            setPurchases([]);
-          } else {
-            setPurchases(data);
-          }
-        }
-      } catch (err) {
-        setError("Error fetching purchases.");
-        setPurchases([]);
+  const [cancellingId, setCancellingId] = useState(null);
+  const handleCancelOrder = async (orderId) => {
+    setCancellingId(orderId);
+    setError("");
+    try {
+      const token = await getAccessTokenSilently();
+      const response = await cancelOrder(orderId, token);
+      if (response && (response.message === "Order cancelled successfully" || response.message === "Order is already cancelled")) {
+        // Refetch orders after cancelling
+        await fetchOrders();
       }
-      setLoading(false);
-    };
-    fetchPurchases();
+    } catch (err) {
+      setError(err.message || "Failed to cancel order.");
+    }
+    setCancellingId(null);
+  };
+
+  const fetchOrders = async () => {
+    setLoading(true);
+    setError("");
+    try {
+      if (isAuthenticated) {
+        const token = await getAccessTokenSilently();
+        const res = await fetch("/api/orders/my-orders", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+        const result = await res.json();
+        if (!res.ok) {
+          setError(result.message || "Failed to fetch orders.");
+          setOrders([]);
+        } else {
+          // result.orders is the array from backend
+          setOrders(result.orders);
+        }
+      }
+    } catch (err) {
+      setError("Error fetching orders.");
+      setOrders([]);
+    }
+    setLoading(false);
+  };
+  useEffect(() => {
+    fetchOrders();
   }, [getAccessTokenSilently, isAuthenticated]);
 
   if (loading) {
@@ -45,7 +63,7 @@ const MyOrdersPage = () => {
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <Package className="mx-auto h-12 w-12 text-gray-400 animate-pulse" />
-          <h3 className="mt-2 text-sm font-medium text-gray-900">Loading your purchases...</h3>
+          <h3 className="mt-2 text-sm font-medium text-gray-900">Loading your orders...</h3>
         </div>
       </div>
     );
@@ -55,7 +73,7 @@ const MyOrdersPage = () => {
     return (
       <div className="m-8">
         <div className="bg-red-50 border border-red-200 rounded-lg p-6">
-          <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Purchases</h3>
+          <h3 className="text-lg font-medium text-red-800 mb-2">Error Loading Orders</h3>
           <p className="text-red-600">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -80,7 +98,7 @@ const MyOrdersPage = () => {
           <p className="text-base text-gray-600">Track and manage your order history</p>
         </div>
 
-        {purchases?.length > 0 ? (
+  {orders?.length > 0 ? (
           <div className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-green-100">
@@ -92,60 +110,95 @@ const MyOrdersPage = () => {
                     <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Delivery Time</th>
                     <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Location</th>
                     <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Message</th>
+                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-green-50">
-                  {purchases.map((purchase) => (
-                    purchase.products && purchase.products.length > 0 ? (
-                      purchase.products.map((p, idx) => (
-                        <tr key={purchase._id + '-' + idx} className="hover:bg-green-50 transition-colors">
-                          <td className="px-6 py-4 font-semibold text-lg text-gray-900">
-                            {p.name}
-                            {(p.size || p.color) && (
-                              <div className="text-xs text-gray-500">
-                                {p.size ? `Size: ${p.size}` : ""}
-                                {p.size && p.color ? <br /> : null}
-                                {p.color ? `Color: ${p.color}` : ""}
-                              </div>
+                  {orders.map((order) => (
+                    order.orderItems && order.orderItems.length > 0 ? (
+                      <React.Fragment key={order._id}>
+                        {order.orderItems.map((p, idx) => (
+                          <tr key={order._id + '-' + idx} className="hover:bg-green-50 transition-colors">
+                            {/* Username column removed */}
+                            <td className="px-6 py-4 font-semibold text-lg text-gray-900">
+                              {p.name}
+                              {(p.size || p.color) && (
+                                <div className="text-xs text-gray-500">
+                                  {p.size ? `Size: ${p.size}` : ""}
+                                  {p.size && p.color ? <br /> : null}
+                                  {p.color ? `Color: ${p.color}` : ""}
+                                </div>
+                              )}
+                            </td>
+                            <td className="px-6 py-4 text-green-700 font-bold">{p.quantity}</td>
+                            {idx === 0 && (
+                              <td className="px-6 py-4 text-gray-700" rowSpan={order.orderItems.length}>
+                                {new Date(order.dateOfPurchase).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
+                              </td>
                             )}
+                            {idx === 0 && (
+                              <td className="px-6 py-4" rowSpan={order.orderItems.length}>
+                                <span className="inline-block bg-green-100 text-green-700 text-base font-semibold px-3 py-1 rounded-full shadow-sm">
+                                  {order.deliveryTime}
+                                </span>
+                              </td>
+                            )}
+                            {idx === 0 && (
+                              <td className="px-6 py-4 text-gray-700" rowSpan={order.orderItems.length}>
+                                {order.deliveryLocation}
+                              </td>
+                            )}
+                            {idx === 0 && (
+                              <td className="px-6 py-4 text-gray-700" rowSpan={order.orderItems.length}>
+                                {order.message || <span className="text-gray-400">-</span>}
+                              </td>
+                            )}
+                            {idx === 0 && (
+                              <td className="px-6 py-4 text-gray-700" rowSpan={order.orderItems.length}>
+                                <button
+                                  className={`px-3 py-1 rounded-lg text-sm font-semibold transition-colors disabled:opacity-50 ${order.status === "Cancelled" ? "bg-green-300 text-black cursor-not-allowed" : "bg-red-500 text-white hover:bg-red-600"}`}
+                                  onClick={() => handleCancelOrder(order._id)}
+                                  disabled={cancellingId === order._id || order.status === "Cancelled"}
+                                >
+                                  {order.status === "Cancelled" ? "Cancelled" : (cancellingId === order._id ? "Cancelling..." : "Cancel Order")}
+                                </button>
+                              </td>
+                            )}
+                          </tr>
+                        ))}
+                        {/* Divider after each order group */}
+                        <tr>
+                          <td colSpan={6} className="py-2">
+                            <div className="border-b border-green-200"></div>
                           </td>
-                          <td className="px-6 py-4 text-green-700 font-bold">{p.quantity}</td>
-                          {idx === 0 && (
-                            <td className="px-6 py-4 text-gray-700" rowSpan={purchase.products.length}>
-                              {new Date(purchase.dateOfPurchase).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}
-                            </td>
-                          )}
-                          {idx === 0 && (
-                            <td className="px-6 py-4" rowSpan={purchase.products.length}>
-                              <span className="inline-block bg-green-100 text-green-700 text-base font-semibold px-3 py-1 rounded-full shadow-sm">
-                                {purchase.deliveryTime}
-                              </span>
-                            </td>
-                          )}
-                          {idx === 0 && (
-                            <td className="px-6 py-4 text-gray-700" rowSpan={purchase.products.length}>
-                              {purchase.deliveryLocation}
-                            </td>
-                          )}
-                          {idx === 0 && (
-                            <td className="px-6 py-4 text-gray-700" rowSpan={purchase.products.length}>
-                              {purchase.message || <span className="text-gray-400">-</span>}
-                            </td>
-                          )}
                         </tr>
-                      ))
+                      </React.Fragment>
                     ) : (
-                      <tr key={purchase._id} className="hover:bg-green-50 transition-colors">
-                        <td className="px-6 py-4 font-semibold text-lg text-gray-900"><span className="text-gray-400">-</span></td>
+                      <tr key={order._id} className="hover:bg-green-50 transition-colors">
+                        {/* Username column removed */}
                         <td className="px-6 py-4 text-green-700 font-bold"><span className="text-gray-400">-</span></td>
-                        <td className="px-6 py-4 text-gray-700">{new Date(purchase.dateOfPurchase).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
+                        <td className="px-6 py-4 text-gray-700">{new Date(order.dateOfPurchase).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' })}</td>
                         <td className="px-6 py-4">
                           <span className="inline-block bg-green-100 text-green-700 text-base font-semibold px-3 py-1 rounded-full shadow-sm">
-                            {purchase.deliveryTime}
+                            {order.deliveryTime}
                           </span>
                         </td>
-                        <td className="px-6 py-4 text-gray-700">{purchase.deliveryLocation}</td>
-                        <td className="px-6 py-4 text-gray-700">{purchase.message || <span className="text-gray-400">-</span>}</td>
+                        <td className="px-6 py-4 text-gray-700">{order.deliveryLocation}</td>
+                        <td className="px-6 py-4 text-gray-700">{order.message || <span className="text-gray-400">-</span>}</td>
+                        <td className="px-6 py-4 text-gray-700">
+                          {order.status !== "cancelled" && (
+                            <button
+                              className="bg-red-500 text-white px-3 py-1 rounded-lg text-sm font-semibold hover:bg-red-600 transition-colors disabled:opacity-50"
+                              onClick={() => handleCancelOrder(order._id)}
+                              disabled={cancellingId === order._id}
+                            >
+                              {cancellingId === order._id ? "Cancelling..." : "Cancel Order"}
+                            </button>
+                          )}
+                          {order.status === "cancelled" && (
+                            <span className="text-red-600 font-bold">Cancelled</span>
+                          )}
+                        </td>
                       </tr>
                     )
                   ))}
