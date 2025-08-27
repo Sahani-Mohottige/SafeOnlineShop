@@ -44,17 +44,17 @@ const protect = async (req, res, next) => {
             // Debug: log decoded JWT fields
             console.log('Decoded Auth0 JWT:', decoded);
 
-            // Fetch user profile securely from Auth0 /userinfo endpoint
-            const axios = require('axios');
-            try {
-              const userinfoUrl = `https://${auth0Domain}/userinfo`;
-              const userinfoRes = await axios.get(userinfoUrl, {
-                headers: { Authorization: `Bearer ${token}` }
-              });
-              const userProfile = userinfoRes.data;
-              // Find or create user in MongoDB using Auth0 sub
-              let user = await User.findOne({ auth0Id: decoded.sub });
-              if (!user) {
+            // Find user in MongoDB using Auth0 sub
+            let user = await User.findOne({ auth0Id: decoded.sub });
+            if (!user) {
+              // Only fetch from Auth0 if user does not exist
+              const axios = require('axios');
+              try {
+                const userinfoUrl = `https://${auth0Domain}/userinfo`;
+                const userinfoRes = await axios.get(userinfoUrl, {
+                  headers: { Authorization: `Bearer ${token}` }
+                });
+                const userProfile = userinfoRes.data;
                 const userName = userProfile.name || userProfile.nickname || userProfile.email || decoded.sub;
                 const userEmail = userProfile.email;
                 if (!userEmail) {
@@ -68,13 +68,13 @@ const protect = async (req, res, next) => {
                   role: 'customer'
                 });
                 console.log('Created new user:', user);
+              } catch (profileErr) {
+                console.error('Error fetching user profile from Auth0:', profileErr);
+                return res.status(500).json({ message: 'Failed to fetch user profile from Auth0' });
               }
-              req.user = user;
-              next();
-            } catch (profileErr) {
-              console.error('Error fetching user profile from Auth0:', profileErr);
-              return res.status(500).json({ message: 'Failed to fetch user profile from Auth0' });
             }
+            req.user = user;
+            next();
           }
         );
       } catch (error) {
