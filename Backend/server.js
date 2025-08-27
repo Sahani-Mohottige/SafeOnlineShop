@@ -11,16 +11,16 @@ const checkoutRoutes = require("./routes/checkoutRoutes");
 const orderRoutes = require("./routes/orderRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const subscriberRoutes = require("./routes/subscriberRoutes");
-const purchaseRoutes = require("./routes/purchaseRoutes");
 
 require('dotenv').config();
 
 const app = express();
 
+
 app.use(express.json());
 app.use(cors());
 app.use(helmet());
-app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+// app.use(rateLimit({ windowMs: 15 * 60 * 1000, max: 100 })); // Disabled for development
 
 const PORT = process.env.PORT || 3000;
 
@@ -30,21 +30,14 @@ app.get("/", (req, res) => {
   res.send("Welcome to Pickzy API!");
 });
 
-//API Routes (protected)
+
+// API Routes
 app.use("/api/users", protect, userRoutes);
-app.use("/api/products", productRoutes); // public
+app.use("/api/products", productRoutes); 
 app.use("/api/cart", cartRoutes);
 app.use("/api/checkout", protect, checkoutRoutes);
 app.use("/api/orders", protect, orderRoutes);
-
-// Purchase and profile routes (protected)
-app.use("/api/purchases", purchaseRoutes);
-
-// Admin Routes
-// Only accessible by admin users
-// app.use("/api/admin", protect, adminRoutes);
-// app.use("/api/admin/products", protect, adminProductRoutes);
-// app.use("/api/admin/orders", protect, adminOrderRoutes);
+app.use("/api/subscriber", subscriberRoutes); 
 
 app.listen(PORT, () => {
   console.log(`Server is Running on http://localhost:${PORT}`);
