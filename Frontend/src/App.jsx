@@ -5,8 +5,8 @@ import CollectionPage from "./pages/CollectionPage";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import MyOrdersPage from "./pages/MyOrdersPage";
-import OderConfirmationPage from "./pages/OrderConfirmationPage";
-import OrderDetailsPage from "./pages/OrderDetailspage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrderDetailsPage from "./pages/OrderDetailsPage";
 import ProductDetails from "./components/Products/ProductDetails";
 import Profile from "./pages/Profile";
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -52,7 +52,7 @@ const App = () => {
           <Route path="collections/:collection" element={<CollectionPage />} />
           <Route path="product/:id" element={<ProductDetails />} />
           <Route path="checkout" element={<ProtectedRoute><Checkout /></ProtectedRoute>} />
-          <Route path="order-confirmation" element={<ProtectedRoute><OderConfirmationPage /></ProtectedRoute>} />
+          <Route path="order-confirmation" element={<ProtectedRoute><OrderConfirmationPage /></ProtectedRoute>} />
           <Route path="order/:id" element={<ProtectedRoute><OrderDetailsPage /></ProtectedRoute>} />
           <Route path="my-orders" element={<ProtectedRoute><MyOrdersPage /></ProtectedRoute>} />
           <Route path="search" element={<SearchResults />} />

@@ -146,22 +146,6 @@ router.get("/similar/:id", async (req, res) => {
   }
 });
 
-// @route GET /api/products/:id
-// @desc Get a single product by ID
-// @access Public
-router.get("/:id", async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (product) {
-      res.json(product);
-    } else {
-      res.status(404).json({ message: "Product Not Found" });
-    }
-  } catch (error) {
-    console.error(error);
-    res.status(500).send("Server Error");
-  }
-});
 
 // @route GET /api/products/search
 // @desc Search for products by query
@@ -177,7 +161,25 @@ router.get("/search", async (req, res) => {
     });
     res.json(products);
   } catch (err) {
-    res.status(500).json({ error: "Server error" });
+    console.error('Search error:', err);
+    res.status(500).json({ error: "Server error", details: err.message, stack: err.stack });
+  }
+});
+
+// @route GET /api/products/:id
+// @desc Get a single product by ID
+// @access Public
+router.get("/:id", async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (product) {
+      res.json(product);
+    } else {
+      res.status(404).json({ message: "Product Not Found" });
+    }
+  } catch (error) {
+    console.error(error);
+    res.status(500).send("Server Error");
   }
 });
 
