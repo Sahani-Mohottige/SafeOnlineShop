@@ -1,6 +1,5 @@
+import { Link, useLocation } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-
-import { useLocation } from "react-router-dom";
 
 const SearchResults = () => {
   const location = useLocation();
@@ -34,9 +33,11 @@ const SearchResults = () => {
       ) : (
         <ul className="space-y-4">
           {results.map((product) => (
-            <li key={product._id} className="border p-4 rounded-lg">
-              <h3 className="text-lg font-semibold">{product.name}</h3>
-              <p className="text-gray-600">{product.description}</p>
+            <li key={product._id} className="border p-4 rounded-lg hover:bg-gray-50 transition">
+              <Link to={`/product/${product._id}`} className="block">
+                <h3 className="text-lg font-semibold text-blue-600 hover:underline">{product.name}</h3>
+                <p className="text-gray-600">{product.description}</p>
+              </Link>
             </li>
           ))}
         </ul>

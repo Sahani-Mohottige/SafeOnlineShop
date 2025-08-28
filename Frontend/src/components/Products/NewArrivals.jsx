@@ -12,7 +12,7 @@ const NewArrivals = () => {
   const [scrollLeft, setScrollLeft] = useState(false);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
-  
+
 const [newArrivals, setNewArrivals] = useState([]);
 const [loading, setLoading] = useState(true);
 const [error, setError] = useState(null);
@@ -171,7 +171,7 @@ useEffect(() => {
                   e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
                 }}
               />
-              <div className="p-4  absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-blur-md text-white rounded-b-lg">
+              <div className="p-4  absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-brightness-25 text-white rounded-b-lg">
                 {/* Replace inner Link with span to avoid <a> inside <a> */}
                 <span className="block text-lg font-semibold hover:underline">
                   {product.name}

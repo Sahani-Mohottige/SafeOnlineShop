@@ -35,6 +35,18 @@ function PurchaseForm({ onPurchase }) {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
+    if (name === "dateOfPurchase") {
+      // Prevent selecting Sundays
+      if (value) {
+        const date = new Date(value);
+        if (date.getDay() === 0) {
+          setError("Purchases cannot be made on Sundays.");
+          setForm((prev) => ({ ...prev, [name]: "" }));
+          return;
+        }
+      }
+      setError("");
+    }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
