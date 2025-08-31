@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
 import ErrorBoundary from "../Common/ErrorBoundary";
-import PayPalButton from "./PayPalButton";
+// PayPalButton removed. No PayPal integration.
 import PurchaseForm from "./PurchaseForm";
 import { fetchCart } from "../../redux/slices/cartSlice";
 import { useAuth0 } from "@auth0/auth0-react";
