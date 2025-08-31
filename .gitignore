@@ -137,3 +137,7 @@ dist
 # Vite logs files
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
+
+# SSL certificates (do not commit)
+Backend/privkey.pem
+Backend/fullchain.pem

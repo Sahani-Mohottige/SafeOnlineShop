@@ -1,4 +1,6 @@
 const express = require("express");
+const https = require("https");
+const fs = require("fs");
 const cors = require("cors");
 const helmet = require("helmet");
 const rateLimit = require("express-rate-limit");
@@ -7,6 +9,7 @@ const connectDB = require("./Config/db");
 const userRoutes = require("./routes/userRoutes");
 const productRoutes = require("./routes/productRoutes");
 const cartRoutes = require("./routes/cartRoutes");
+
 const orderRoutes = require("./routes/orderRoutes");
 const uploadRoutes = require("./routes/uploadRoutes");
 const subscriberRoutes = require("./routes/subscriberRoutes");
@@ -37,6 +40,17 @@ app.use("/api/cart", cartRoutes);
 app.use("/api/orders", protect, orderRoutes);
 app.use("/api/subscriber", subscriberRoutes); 
 
-app.listen(PORT, () => {
-  console.log(`Server is Running on http://localhost:${PORT}`);
-});
+
+if (process.env.NODE_ENV === "production") {
+  // Read SSL certificate files
+  const privateKey = fs.readFileSync("privkey.pem", "utf8");
+  const certificate = fs.readFileSync("fullchain.pem", "utf8");
+  const credentials = { key: privateKey, cert: certificate };
+  https.createServer(credentials, app).listen(PORT, () => {
+    console.log(`HTTPS Server is running on https://localhost:${PORT}`);
+  });
+} else {
+  app.listen(PORT, () => {
+    console.log(`HTTP Server is running on http://localhost:${PORT}`);
+  });
+}
