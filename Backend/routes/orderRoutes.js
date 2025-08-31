@@ -1,49 +1,66 @@
 const express = require('express');
 const Order = require('../models/Order');
-const { protect } = require('../middleware/authMiddleware');            
+const { protect } = require('../middleware/authMiddleware');
+const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
 //@route POST /api/orders
 //@desc Create a new order for the logged-in user
 //@access Private
-router.post('/', protect, async (req, res) => {
-    try {
-        const {
-            orderItems,
-            shippingAddress,
-            paymentMethod,
-            totalPrice,
-            dateOfPurchase,
-            deliveryTime,
-            deliveryLocation,
-            message
-        } = req.body;
-
-        if (!orderItems || orderItems.length === 0) {
-            return res.status(400).json({ message: 'No order items' });
+router.post(
+    '/',
+    protect,
+    [
+        body('orderItems').isArray({ min: 1 }).withMessage('Order items are required'),
+        body('shippingAddress').notEmpty().withMessage('Shipping address is required'),
+        body('shippingAddress.city').notEmpty().withMessage('City is required'),
+        body('shippingAddress.country').notEmpty().withMessage('Country is required'),
+        body('paymentMethod').notEmpty().withMessage('Payment method is required').trim().escape(),
+        body('totalPrice').isFloat({ min: 0 }).withMessage('Total price must be a positive number'),
+        body('dateOfPurchase').optional().isISO8601().toDate(),
+        body('deliveryTime').optional().trim().escape(),
+        body('deliveryLocation').optional().trim().escape(),
+        body('message').optional().trim().escape(),
+    ],
+    async (req, res) => {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ errors: errors.array() });
         }
-
-        const order = new Order({
-            user: req.user._id,
-            username: req.user.name || req.user.nickname || '',
-            orderItems,
-            shippingAddress,
-            paymentMethod,
-            totalPrice,
-            dateOfPurchase,
-            deliveryTime,
-            deliveryLocation,
-            message,
-            status: 'Processing'
-        });
-        const createdOrder = await order.save();
-        res.status(201).json(createdOrder);
-    } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Server error' });
+        try {
+            const {
+                orderItems,
+                shippingAddress,
+                paymentMethod,
+                totalPrice,
+                dateOfPurchase,
+                deliveryTime,
+                deliveryLocation,
+                message
+            } = req.body;
+            const order = new Order({
+                user: req.user._id,
+                username: req.user.name || req.user.nickname || '',
+                orderItems,
+                shippingAddress,
+                paymentMethod,
+                totalPrice,
+                dateOfPurchase,
+                deliveryTime,
+                deliveryLocation,
+                message,
+                status: 'Processing'
+            });
+            const createdOrder = await order.save();
+            res.status(201).json(createdOrder);
+        } catch (error) {
+            // Log and return detailed error info
+            console.error('Order creation error:', error.message, error.errors);
+            res.status(500).json({ message: error.message, errors: error.errors });
+        }
     }
-});
+);
 
 //@route GET /api/orders/my-orders
 //@desc Get all orders for the logged-in user

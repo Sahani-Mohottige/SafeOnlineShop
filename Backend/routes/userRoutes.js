@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const User = require("../models/User");
 const jwt = require("jsonwebtoken");
 const { protect } = require("../middleware/authMiddleware");
+const { body, validationResult } = require('express-validator');
 
 const router = express.Router();
 
@@ -17,62 +18,78 @@ const generateToken = (user) => {
 
 // @route   POST /api/users/register
 // @desc    Register a new user (Public)
-router.post("/register", async (req, res) => {
-  const { name, email, password } = req.body;
-
-  try {
-    console.log("Database connection state:", mongoose.connection.readyState);
-
-    // Check if user already exists
-    const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: "User already exists" });
-
-    // Create new user
-    const user = new User({ name, email, password });
-    await user.save();
-
-    // Respond with token
-    res.status(201).json({
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token: generateToken(user),
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server error" });
+router.post(
+  "/register",
+  [
+    body('name').trim().notEmpty().withMessage('Name is required'),
+    body('email').isEmail().withMessage('Invalid email').normalizeEmail(),
+    body('password').isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { name, email, password } = req.body;
+    try {
+      console.log("Database connection state:", mongoose.connection.readyState);
+      // Check if user already exists
+      const existingUser = await User.findOne({ email });
+      if (existingUser) return res.status(400).json({ message: "User already exists" });
+      // Create new user
+      const user = new User({ name, email, password });
+      await user.save();
+      // Respond with token
+      res.status(201).json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        token: generateToken(user),
+      });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 // @route   POST /api/users/login
 // @desc    Login user (Public)
-router.post("/login", async (req, res) => {
-  const { email, password } = req.body;
-
-  try {
-    const user = await User.findOne({ email });
-    if (!user) return res.status(400).json({ message: "Invalid credentials" });
-
-    const isMatch = await user.matchPassword(password);
-    if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
-
-    res.json({
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-      token: generateToken(user),
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).json({ message: "Server error" });
+router.post(
+  "/login",
+  [
+    body('email').isEmail().withMessage('Invalid email').normalizeEmail(),
+    body('password').notEmpty().withMessage('Password is required'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+    const { email, password } = req.body;
+    try {
+      const user = await User.findOne({ email });
+      if (!user) return res.status(400).json({ message: "Invalid credentials" });
+      const isMatch = await user.matchPassword(password);
+      if (!isMatch) return res.status(400).json({ message: "Invalid credentials" });
+      res.json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+        token: generateToken(user),
+      });
+    } catch (error) {
+      console.error(error.message);
+      res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 // @route   GET /api/users/profile
 // @desc    Get logged-in user's profile (Protected)
@@ -93,29 +110,40 @@ router.get("/profile", protect, async (req, res) => {
 
 // @route   PUT /api/users/profile
 // @desc    Update logged-in user's profile (Protected)
-router.put("/profile", protect, async (req, res) => {
-  try {
-    const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ message: "User not found" });
-
-    user.name = req.body.name || user.name;
-    user.email = req.body.email || user.email;
-    if (req.body.password) {
-      user.password = req.body.password;
+router.put(
+  "/profile",
+  protect,
+  [
+    body('name').optional().trim().notEmpty().withMessage('Name cannot be empty'),
+    body('email').optional().isEmail().withMessage('Invalid email').normalizeEmail(),
+    body('password').optional().isLength({ min: 6 }).withMessage('Password must be at least 6 characters'),
+  ],
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
     }
-    await user.save();
-
-    res.json({
-      user: {
-        _id: user._id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
+    try {
+      const user = await User.findById(req.user._id);
+      if (!user) return res.status(404).json({ message: "User not found" });
+      user.name = req.body.name || user.name;
+      user.email = req.body.email || user.email;
+      if (req.body.password) {
+        user.password = req.body.password;
       }
-    });
-  } catch (error) {
-    res.status(500).json({ message: "Server error" });
+      await user.save();
+      res.json({
+        user: {
+          _id: user._id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        }
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Server error" });
+    }
   }
-});
+);
 
 module.exports = router;
