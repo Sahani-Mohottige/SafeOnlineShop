@@ -139,5 +139,6 @@ vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 
 # SSL certificates (do not commit)
-Backend/privkey.pem
-Backend/fullchain.pem
+crt/localhost.crt
+crt/localhost.key   
+crt/localhost.conf

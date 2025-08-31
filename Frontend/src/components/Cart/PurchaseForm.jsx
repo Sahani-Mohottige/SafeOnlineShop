@@ -6,6 +6,7 @@ import { useAuth } from "../../context/AuthContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 
+const API_URL = import.meta.env.VITE_BACKEND_URL || "https://localhost:3001";
 const districts = [
   "Colombo", "Gampaha", "Kandy", "Galle", "Matara", "Kurunegala", "Jaffna", "Badulla", "Anuradhapura", "Ratnapura"
 ];
@@ -112,7 +113,7 @@ function PurchaseForm({ onPurchase }) {
         message: form.message
       };
     //  console.log("Order payload:", payload);
-  const res = await fetch("http://localhost:9000/api/orders", {
+  const res = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
