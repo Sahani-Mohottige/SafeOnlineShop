@@ -1,10 +1,11 @@
 import React, { useEffect } from "react";
-import { useAuth0 } from "@auth0/auth0-react";
 import { useDispatch, useSelector } from "react-redux";
 
+import ErrorBoundary from "../Common/ErrorBoundary";
 import PayPalButton from "./PayPalButton";
 import PurchaseForm from "./PurchaseForm";
 import { fetchCart } from "../../redux/slices/cartSlice";
+import { useAuth0 } from "@auth0/auth0-react";
 
 const Checkout = () => {
   const { getAccessTokenSilently, isAuthenticated } = useAuth0();
@@ -59,7 +60,9 @@ const Checkout = () => {
       {/* Left Section: Purchase Form */}
       <div>
         <h2 className="text-3xl font-bold mb-6">Checkout</h2>
-        <PurchaseForm />
+        <ErrorBoundary>
+          <PurchaseForm />
+        </ErrorBoundary>
       </div>
       {/* Right Section: Order Summary */}
       <div className="bg-blue-50 p-6 rounded-lg shadow-sm">

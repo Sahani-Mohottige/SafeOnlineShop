@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { clearCart, clearCartServer } from "../../redux/slices/cartSlice";
 import { useDispatch, useSelector } from "react-redux";
 
+import { useAuth } from "../../context/AuthContext";
 import { useAuth0 } from "@auth0/auth0-react";
 import { useNavigate } from "react-router-dom";
 
@@ -14,13 +15,17 @@ const deliveryTimes = ["10 AM", "11 AM", "1 PM","2 PM","3 PM","4 PM","5 PM","6 P
 function PurchaseForm({ onPurchase }) {
   const dispatch = useDispatch();
   const { getAccessTokenSilently } = useAuth0();
+  const { user: authUser } = useAuth();
   const cart = useSelector((state) => state.cart.cart);
   const navigate = useNavigate();
   const cartProducts = cart?.products || [];
+  const totalQuantity = cartProducts.reduce((sum, p) => sum + (p.quantity || 0), 0);
+  const { user: auth0User } = useAuth0();
   const [form, setForm] = useState({
     dateOfPurchase: "",
     deliveryTime: "10 AM",
     deliveryLocation: districts[0],
+    address: auth0User?.address || "",
     message: ""
   });
   const [loading, setLoading] = useState(false);
@@ -47,6 +52,19 @@ function PurchaseForm({ onPurchase }) {
       }
       setError("");
     }
+    if (name === "message") {
+      // Limit message length and block suspicious input
+      if (value.length > 200) {
+        setError("Message must be 200 characters or less.");
+        return;
+      }
+      // Basic suspicious input check (block <script> tags)
+      if (/\<\s*script/i.test(value)) {
+        setError("Message cannot contain script tags.");
+        return;
+      }
+      setError("");
+    }
     setForm((prev) => ({ ...prev, [name]: value }));
   };
 
@@ -70,6 +88,8 @@ function PurchaseForm({ onPurchase }) {
     try {
       const token = await getAccessTokenSilently();
       const payload = {
+        user: authUser?._id || auth0User?.sub || "",
+        username: authUser?.name || authUser?.nickname || authUser?.email || auth0User?.name || auth0User?.nickname || auth0User?.email || "",
         orderItems: cartProducts.map(p => ({
           productId: p.productId,
           name: p.name,
@@ -80,18 +100,18 @@ function PurchaseForm({ onPurchase }) {
           image: p.image || (p.images ? p.images[0] : ""),
         })),
         shippingAddress: {
-          address: form.deliveryLocation,
-          city: form.deliveryLocation,
-          postalCode: "",
+          address: form.address,
+          city: form.deliveryLocation || "Colombo",
           country: "Sri Lanka"
         },
         paymentMethod: "Cash",
         totalPrice: cartProducts.reduce((sum, p) => sum + p.price * p.quantity, 0),
         dateOfPurchase: form.dateOfPurchase,
-        deliveryTime: form.deliveryTime,
-        deliveryLocation: form.deliveryLocation,
+        deliveryTime: form.deliveryTime || "10 AM",
+        deliveryLocation: form.deliveryLocation || "Colombo",
         message: form.message
       };
+    //  console.log("Order payload:", payload);
   const res = await fetch("http://localhost:9000/api/orders", {
         method: "POST",
         headers: {
@@ -109,6 +129,7 @@ function PurchaseForm({ onPurchase }) {
           dateOfPurchase: "",
           deliveryTime: "10 AM",
           deliveryLocation: districts[0],
+          address: auth0User?.address || "",
           message: ""
         });
         // Clear cart on backend and frontend
@@ -147,8 +168,14 @@ function PurchaseForm({ onPurchase }) {
         )}
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-600">Quantity</label>
-        <input type="number" name="quantity" min="1" value={form.quantity} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" />
+        <label className="block text-sm font-medium text-gray-600">Total Quantity</label>
+        <input
+          type="number"
+          name="quantity"
+          value={totalQuantity}
+          readOnly
+          className="mt-1 block w-full border-gray-300 rounded-md bg-gray-100 cursor-not-allowed"
+        />
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-600">Date of Purchase</label>
@@ -163,7 +190,19 @@ function PurchaseForm({ onPurchase }) {
         </select>
       </div>
       <div>
-        <label className="block text-sm font-medium text-gray-600">Preferred Delivery Location</label>
+        <label className="block text-sm font-medium text-gray-600">Street Address</label>
+        <input
+          type="text"
+          name="address"
+          value={form.address}
+          onChange={handleChange}
+          className="mt-1 block w-full border-gray-300 rounded-md"
+          placeholder="Enter your street address"
+          required
+        />
+      </div>
+      <div>
+        <label className="block text-sm font-medium text-gray-600">Preferred Delivery Location (District)</label>
         <select name="deliveryLocation" value={form.deliveryLocation} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md">
           {districts.map((d) => (
             <option key={d} value={d}>{d}</option>
@@ -172,7 +211,15 @@ function PurchaseForm({ onPurchase }) {
       </div>
       <div>
         <label className="block text-sm font-medium text-gray-600">Message</label>
-        <textarea name="message" value={form.message} onChange={handleChange} className="mt-1 block w-full border-gray-300 rounded-md" rows={2} />
+        <textarea
+          name="message"
+          value={form.message}
+          onChange={handleChange}
+          className="mt-1 block w-full border-gray-300 rounded-md"
+          rows={2}
+          maxLength={200}
+          placeholder="Optional message (max 200 characters)"
+        />
       </div>
       <button type="submit" disabled={loading} className="w-full bg-green-600 text-white py-2 px-4 rounded-md font-semibold hover:bg-green-700 transition-all">
         {loading ? "Processing..." : "Purchase"}
