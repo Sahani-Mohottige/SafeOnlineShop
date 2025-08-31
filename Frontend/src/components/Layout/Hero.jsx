@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 
 import heroImg from "../../assets/fam.jpg";
 import heroImg2 from "../../assets/fashion2.jpeg";
-import heroImg3 from "../../assets/beachParty.jpg";
+import heroImg3 from "../../assets/beachparty.jpg";
 import heroImg4 from "../../assets/girls.jpg";
 
 const Hero = () => {
