@@ -27,7 +27,6 @@ const materials = [
   "Cotton Blend",
   "Denim",
   "Viscose",
-  "Fleece",
   "Polyester",
 ];
 const brands = [
@@ -40,18 +39,8 @@ const brands = [
   "Street Vibes",
   "Heritage Wear",
   "Winter Basics",
-  "Everyday Comfort",
-  "ActiveWear",
-  "UrbanStyle",
-  "ChillZone",
-  "DenimCo",
-  "CasualLook",
-  "SportX",
   "ExecutiveStyle",
   "StreetWear",
-  "LoungeWear",
-  "ElegantStyle",
-  "DenimStyle"
 ];
 
   useEffect(() => {
@@ -166,7 +155,7 @@ const brands = [
           Category
         </label>
         {categories.map((category) => (
-          <div key={category} className="flex items-center mb-2">
+          <div key={category} className="flex text-sm items-center mb-2">
             <input
               type="radio"
               name="category"
@@ -186,7 +175,7 @@ const brands = [
           Gender
         </label>
         {genders.map((gender) => (
-          <div key={gender} className="flex items-center mb-2">
+          <div key={gender} className="flex text-sm items-center mb-2">
             <input
               type="radio"
               name="gender"
@@ -233,7 +222,7 @@ const brands = [
         </label>
         <div className="flex flex-wrap gap-2">
           {sizes.map((size) => (
-            <div key={size} className="flex items-center mb-1">
+            <div key={size} className="flex text-sm items-center mb-1">
               <input
                 type="checkbox"
                 name="size"
@@ -242,7 +231,7 @@ const brands = [
                 onChange={handleFilterChange}
                 className="mr-2 h-4 w-4 text-blue-500 focus:ring-blue-400 border-gray-300"
               />
-              <span className="text-gray-700"> {size}</span>
+              <span className="text-gray-700 "> {size}</span>
             </div>
           ))}
         </div>
@@ -255,7 +244,7 @@ const brands = [
         </label>
         <div className="flex flex-wrap gap-2">
           {materials.map((material) => (
-            <div key={material} className="flex items-center mb-1">
+            <div key={material} className="flex text-sm items-center mb-1">
               <input
                 type="checkbox"
                 name="material"
@@ -277,7 +266,7 @@ const brands = [
         </label>
         <div className="flex flex-wrap gap-2">
           {brands.map((brand) => (
-            <div key={brand} className="flex items-center mb-1">
+            <div key={brand} className="flex text-sm items-center mb-1">
               <input
                 type="checkbox"
                 name="brand"
@@ -306,7 +295,7 @@ const brands = [
           onChange={handlePriceRange}
           className="w-full h-2 bg-gray-300 rounded-lg appearance-none cursor-pointer"
         />
-        <div className="flex justify-between text-gray-600 mt-2">
+        <div className="flex text-sm justify-between text-gray-600 mt-2">
           <span>$0</span>
           <span>${priceRange[1]}</span>
         </div>

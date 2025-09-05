@@ -20,10 +20,10 @@ function Profile() {
   // Auth0 user fields: nickname, name, email, phone_number, locale, etc.
   return (
     <div className="min-h-screen bg-gray-50 py-10">
-      <div className="container mx-auto px-4 md:px-8">
-        <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0">
+  <div className="max-w-screen-xl mx-auto px-2 md:px-4">
+  <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 items-start">
           {/* Left section - Profile Info */}
-          <div className="w-full md:w-1/3 lg:w-1/4 bg-white border-2 border-green-300 shadow-lg rounded-xl p-8">
+          <div className="w-full md:w-1/2 lg:w-1/3 bg-white border-2 border-green-300 shadow-lg rounded-xl p-8">
             <div className="space-y-6">
               {/* Welcome Header */}
               <div className="text-center">
@@ -81,7 +81,7 @@ function Profile() {
           </div>
 
           {/* Right section - Purchase Form and Orders Table */}
-          <div className="w-full md:w-2/3 lg:w-3/4 space-y-8">
+          <div className="w-full md:w-1/2 lg:w-2/3 space-y-8">
             <MyOrdersPage />
           </div>
         </div>

@@ -154,7 +154,7 @@ useEffect(() => {
             <Link
               key={product._id}
               to={`/product/${product._id}`}
-              className="min-w-[100%] sm:min-w-[50%] lg:min-w-[30%] bg-white rounded-lg relative block"
+              className="min-w-[400px] sm:min-w-[350px] lg:min-w-[300px] max-w-[400px] bg-white rounded-lg relative block shadow-md"
               onClick={(e) => {
                 // Prevent navigation if we were dragging
                 if (hasDragged) {
@@ -165,18 +165,18 @@ useEffect(() => {
               <img
                 src={product.images[0]?.url}
                 alt={product.images[0]?.altText || product.name}
-                className="w-full h-[400px] object-cover rounded-lg"
+                className="w-full h-[350px] object-cover rounded-t-lg"
                 draggable="false"
                 onError={(e) => {
-                  e.target.src = 'https://via.placeholder.com/400x400?text=No+Image';
+                  e.target.src = 'https://via.placeholder.com/400x350?text=No+Image';
                 }}
               />
-              <div className="p-4  absolute bottom-0 left-0 right-0 bg-opacity-50 backdrop-brightness-25 text-white rounded-b-lg">
+              <div className="p-4 absolute bottom-0 left-0 right-0 bg-opacity-60 backdrop-brightness-25 text-white rounded-b-lg">
                 {/* Replace inner Link with span to avoid <a> inside <a> */}
-                <span className="block text-lg font-semibold hover:underline">
+                <span className="block text-lg font-semibold hover:underline truncate">
                   {product.name}
                 </span>
-                <p className="mt-1">${product.price}</p>
+                <p className="mt-1 text-base">${product.price}</p>
               </div>
             </Link>
           ))}

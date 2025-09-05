@@ -25,7 +25,7 @@ const SearchResults = () => {
 
   return (
     <div className="container mx-auto py-8">
-      <h2 className="text-2xl font-bold mb-4">Search Results for: "{query}"</h2>
+      <h2 className="text-xl font-bold mb-4">Search Results for: "{query}"</h2>
       {loading ? (
         <p>Loading...</p>
       ) : results.length === 0 ? (

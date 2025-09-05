@@ -59,7 +59,7 @@ const Checkout = () => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-6xl mx-auto py-10 px-6">
       {/* Left Section: Purchase Form */}
       <div>
-        <h2 className="text-3xl font-bold mb-6">Checkout</h2>
+        <h2 className="text-2xl font-bold mb-6">Checkout</h2>
         <ErrorBoundary>
           <PurchaseForm />
         </ErrorBoundary>
@@ -101,11 +101,11 @@ const Checkout = () => {
           </div>
         )}
         <hr className="my-4 border-gray-500" />
-        <div className="flex justify-between items-center text-lg mb-4">
+        <div className="flex justify-between items-center text-sm mb-4">
           <p>Subtotal:</p>
           <p>${actualTotalAmount?.toLocaleString()}</p>
         </div>
-        <div className="flex justify-between items-center text-lg mb-4">
+        <div className="flex justify-between items-center text-sm mb-4">
           <p>Shipping</p>
           <p>Free</p>
         </div>

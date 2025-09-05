@@ -90,27 +90,27 @@ const MyOrdersPage = () => {
       <div className="max-w-5xl mx-auto p-6">
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-2">
-            <span className="inline-flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-tr from-green-500 to-green-700 text-white shadow-lg">
-              <Package className="w-6 h-6" />
+            <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-gradient-to-tr from-green-500 to-green-700 text-white shadow-lg">
+              <Package className="w-5 h-5" />
             </span>
-            <h1 className="text-3xl font-bold text-green-700 tracking-tight">My Orders</h1>
+            <h1 className="text-2xl font-bold text-green-700 tracking-tight">My Orders</h1>
           </div>
           <p className="text-base text-gray-600">Track and manage your order history</p>
         </div>
 
   {orders?.length > 0 ? (
           <div className="bg-white rounded-2xl shadow-lg border border-green-100 overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full divide-y divide-green-100">
-                <thead className="bg-gradient-to-r from-green-50 to-green-100">
+            <div className="overflow-x-auto lg:overflow-x-visible">
+              <table className="min-w-full divide-y divide-green-100 text-sm lg:text-xs">
+                <thead className="bg-gradient-to-r from-green-50 to-green-100 ">
                   <tr>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Product</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Quantity</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Date</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Delivery Time</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Location</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Message</th>
-                    <th className="px-6 py-4 text-left text-base font-bold text-green-700 uppercase tracking-wider">Actions</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Product</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Quantity</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Date</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Delivery Time</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Location</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Message</th>
+                    <th className="px-2 py-2 text-center font-bold text-green-700 uppercase tracking-wider whitespace-nowrap">Actions</th>
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-green-50">
@@ -138,7 +138,7 @@ const MyOrdersPage = () => {
                             )}
                             {idx === 0 && (
                               <td className="px-6 py-4" rowSpan={order.orderItems.length}>
-                                <span className="inline-block bg-green-100 text-green-700 text-base font-semibold px-3 py-1 rounded-full shadow-sm">
+                                <span className="inline-block bg-green-100 text-green-700 text-sm font-semibold px-3 py-1 rounded-full shadow-sm">
                                   {order.deliveryTime}
                                 </span>
                               </td>

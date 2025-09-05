@@ -30,16 +30,16 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-white border-t border-gray-300">
+    <footer className="bg-white border-t border-gray-300 text-sm">
       <div className="max-w-7xl mx-auto px-6 py-12">
         {/* Grid container */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-10">
           {/* Newsletter */}
           <div className="lg:col-span-2">
-            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+            <h3 className="text-sm font-semibold mb-4 text-gray-900">
               Newsletter
             </h3>
-            <p className="mb-2 text-gray-600">
+            <p className="mb-2 text-gray-600 text-sm">
               Be the first to hear about new products, exclusive events, and
               online offers.
             </p>
@@ -50,7 +50,7 @@ const Footer = () => {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="flex-grow sm:w-1/2 md:w-2/3 lg:w-3/4 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all"
+                className="flex-grow sm:w-1/2 md:w-2/3 lg:w-3/4 px-4 py-3 rounded-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-600 transition-all text-sm"
                 required
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -58,7 +58,7 @@ const Footer = () => {
               />
               <button
                 type="submit"
-                className="w-full sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-all"
+                className="w-full sm:w-auto bg-gray-900 text-white px-6 py-3 rounded-md hover:bg-gray-800 transition-all text-sm"
                 disabled={loading}
               >
                 {loading ? "Subscribing..." : "Subscribe"}
@@ -68,8 +68,8 @@ const Footer = () => {
 
           {/* Shop Links */}
           <div>
-            <h3 className="text-xl font-semibold mb-4 text-gray-900">Shop</h3>
-            <ul className="space-y-2 text-gray-700">
+            <h3 className="text-sm font-semibold mb-4 text-gray-900">Shop</h3>
+            <ul className="space-y-2 text-gray-700 text-sm">
               <li>
                 <Link
                   to="/collections/all?gender=Men&category=Top Wear"
@@ -107,10 +107,10 @@ const Footer = () => {
 
           {/* Support Links */}
           <div>
-            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+            <h3 className="text-sm font-semibold mb-4 text-gray-900">
               Support
             </h3>
-            <ul className="space-y-2 text-gray-700">
+            <ul className="space-y-2 text-gray-700 text-sm">
               <li>
                 <Link
                   to="/contact"
@@ -148,10 +148,10 @@ const Footer = () => {
 
           {/* Follow Us & Contact */}
           <div>
-            <h3 className="text-xl font-semibold mb-4 text-gray-900">
+            <h3 className="text-sm font-semibold mb-4 text-gray-900">
               Follow Us
             </h3>
-            <div className="flex items-center space-x-4 mb-4">
+            <div className="flex items-center space-x-4 mb-4 text-sm">
               <a
                 href="https://www.facebook.com"
                 target="_blank"
@@ -177,8 +177,8 @@ const Footer = () => {
                 <IoLogoTwitter className="h-6 w-6" />
               </a>
             </div>
-            <p className="text-gray-800 font-medium mb-1">Call Us</p>
-            <p className="text-gray-600">
+            <p className="text-gray-800 font-medium mb-1 text-sm">Call Us</p>
+            <p className="text-gray-600 text-sm">
               <FiPhoneCall className="inline-block mr-2" />
               0123-456-789
             </p>
@@ -186,7 +186,7 @@ const Footer = () => {
         </div>
 
         {/* Footer Bottom */}
-        <div className="mt-12 border-t pt-6 text-center text-sm text-gray-600">
+  <div className="mt-12 border-t pt-6 text-center text-sm text-gray-600">
           © {new Date().getFullYear()}, CompileTab. All Rights Reserved.
         </div>
       </div>

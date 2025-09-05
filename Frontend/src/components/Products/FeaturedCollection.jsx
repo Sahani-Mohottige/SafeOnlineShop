@@ -11,7 +11,7 @@ const FeaturedCollection = () => {
           <h2 className="text-lg font-semibold text-gray-700 mb-2">
             Comfort and Style
           </h2>
-          <h1 className="text-4xl lg:text-5xl font-bold mb-6">
+          <h1 className="text-3xl lg:text-4xl font-bold mb-6">
             Apparel made for your everyday life.
           </h1>
           <p className="text-lg text-gray-600 mb-6">

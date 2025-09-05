@@ -130,12 +130,12 @@ const ProductDetails = ({ productId }) => {
   }
 
   return (
-    <div className="p-6">
+  <div className="p-3 text-sm">
       {selectedProduct && (
-        <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg">
-          <div className="flex flex-col md:flex-row">
+  <div className="max-w-4xl mx-auto bg-white p-4 rounded-lg">
+          <div className="flex flex-col md:flex-row gap-4">
             {/* Left Thumbnails */}
-            <div className="hidden md:flex flex-col space-y-4 mr-6">
+            <div className="hidden md:flex flex-col space-y-2 mr-4">
               {selectedProduct.images.map((image, index) => (
                 <img
                   key={index}
@@ -153,7 +153,7 @@ const ProductDetails = ({ productId }) => {
 
             {/* Main image */}
             <div className="md:w-1/2">
-              <div className="mb-4">
+              <div className="mb-2">
                 {mainImage && (
                   <img
                     src={mainImage}
@@ -168,14 +168,14 @@ const ProductDetails = ({ productId }) => {
             </div>
 
             {/* Mobile version thumbnails */}
-            <div className="md:hidden flex overflow-x-scroll space-x-4 mb-6 pb-2">
+            <div className="md:hidden flex overflow-x-scroll space-x-2 mb-4 pb-1">
               {selectedProduct.images.map((image, index) => (
                 <img
                   key={index}
                   src={image.url}
                   alt={image.altText || `Thumbnail ${index}`}
                   onClick={() => handleImageChange(image.url)}
-                  className={`w-20 h-20 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 flex-shrink-0
+                  className={`w-14 h-14 object-cover rounded-lg cursor-pointer border-2 transition-all duration-200 flex-shrink-0
                    ${mainImage === image.url ? "border-black shadow-lg" : "border-gray-300"}`}
                   onError={(e) => {
                     e.target.src = 'https://via.placeholder.com/80x80?text=No+Image';
@@ -185,26 +185,26 @@ const ProductDetails = ({ productId }) => {
             </div>
 
             {/* Right side - Product Details */}
-            <div className="md:w-1/2 md:ml-10">
-              <h1 className="text-2xl md:text-3xl font-semibold mb-2">
+            <div className="md:w-1/2 md:ml-6">
+              <h1 className="text-lg md:text-xl font-semibold mb-1">
                 {selectedProduct.name}
               </h1>
               {selectedProduct.originalPrice && (
-                <p className="text-lg text-gray-600 mb-1 line-through">
+                <p className="text-base text-gray-600 mb-1 line-through">
                   ${selectedProduct.originalPrice}
                 </p>
               )}
-              <p className="text-2xl font-bold text-gray-900 mb-4">
+              <p className="text-lg font-bold text-gray-900 mb-2">
                 ${selectedProduct.price}
               </p>
-              <p className="text-lg text-gray-600 mb-6 leading-relaxed">
+              <p className="text-base text-gray-600 mb-4 leading-relaxed">
                 {selectedProduct.description}
               </p>
 
               {/* Color Selection - Using Utility Functions */}
-              <div className="mb-6">
-                <p className="text-gray-700 font-medium mb-3">Color:</p>
-                <div className="flex flex-wrap gap-3">
+              <div className="mb-4">
+                <p className="text-gray-700 font-medium mb-2">Color:</p>
+                <div className="flex flex-wrap gap-2">
                   {selectedProduct.colors.map((color) => {
                     const colorHex = getColorHex(color);
                     const isSelected = selectedColor === color;
@@ -215,7 +215,7 @@ const ProductDetails = ({ productId }) => {
                       <div key={color} className="flex flex-col items-center">
                         <button
                           onClick={() => setSelectedColor(color)}
-                          className={`w-10 h-10 rounded-full border-2 transition-all duration-200 hover:scale-110 flex items-center justify-center ${borderClass}`}
+                          className={`w-8 h-8 rounded-full border-2 transition-all duration-200 hover:scale-110 flex items-center justify-center ${borderClass}`}
                           style={{
                             backgroundColor: colorHex,
                           }}
@@ -227,7 +227,7 @@ const ProductDetails = ({ productId }) => {
                             </span>
                           )}
                         </button>
-                        <span className="text-xs text-gray-600 mt-1 text-center max-w-[60px] truncate">
+                        <span className="text-[10px] text-gray-600 mt-1 text-center max-w-[50px] truncate">
                           {color}
                         </span>
                       </div>
@@ -235,21 +235,21 @@ const ProductDetails = ({ productId }) => {
                   })}
                 </div>
                 {selectedColor && (
-                  <p className="text-sm text-gray-600 mt-2 font-medium">
+                  <p className="text-xs text-gray-600 mt-1 font-medium">
                     Selected: {selectedColor}
                   </p>
                 )}
               </div>
 
               {/* Size Selection */}
-              <div className="mb-6">
-                <p className="text-gray-700 font-medium mb-3">Size:</p>
-                <div className="flex gap-2 flex-wrap">
+              <div className="mb-4">
+                <p className="text-gray-700 font-medium mb-2">Size:</p>
+                <div className="flex gap-1 flex-wrap">
                   {selectedProduct.sizes.map((size) => (
                     <button
                       key={size}
                       onClick={() => setSelectedSize(size)}
-                      className={`px-4 py-2 rounded border-2 transition-colors duration-200 font-medium
+                      className={`px-3 py-1 rounded border-2 transition-colors duration-200 font-medium text-xs
                         ${selectedSize === size 
                           ? "bg-black text-white border-black" 
                           : "bg-white text-black border-gray-300 hover:border-gray-400"
@@ -260,30 +260,30 @@ const ProductDetails = ({ productId }) => {
                   ))}
                 </div>
                 {selectedSize && (
-                  <p className="text-sm text-gray-600 mt-2 font-medium">
+                  <p className="text-xs text-gray-600 mt-1 font-medium">
                     Selected: {selectedSize}
                   </p>
                 )}
               </div>
 
               {/* Quantity Selection */}
-              <div className="mb-6">
-                <p className="text-gray-700 font-medium mb-3">Quantity:</p>
-                <div className="flex items-center space-x-4">
+              <div className="mb-4">
+                <p className="text-gray-700 font-medium mb-2">Quantity:</p>
+                <div className="flex items-center space-x-2">
                   <button
                     onClick={() => handleQuantityChange("minus")}
                     disabled={quantity <= 1}
-                    className={`w-10 h-10 rounded bg-gray-200 text-lg font-bold transition-colors duration-200
+                    className={`w-8 h-8 rounded bg-gray-200 text-base font-bold transition-colors duration-200
                       ${quantity <= 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-300'}`}
                   >
                     -
                   </button>
-                  <span className="text-lg font-medium min-w-[2rem] text-center">
+                  <span className="text-base font-medium min-w-[1.5rem] text-center">
                     {quantity}
                   </span>
                   <button
                     onClick={() => handleQuantityChange("plus")}
-                    className="w-10 h-10 rounded bg-gray-200 text-lg font-bold hover:bg-gray-300 transition-colors duration-200"
+                    className="w-8 h-8 rounded bg-gray-200 text-base font-bold hover:bg-gray-300 transition-colors duration-200"
                   >
                     +
                   </button>
@@ -294,7 +294,7 @@ const ProductDetails = ({ productId }) => {
               <button
                 onClick={handleAddToCart}
                 disabled={isButtonDisabled}
-                className={`bg-black text-white py-3 px-6 rounded-lg w-full mb-6 font-medium transition-colors duration-200
+                className={`bg-black text-white py-2 px-4 rounded-md w-full mb-4 font-medium text-sm transition-colors duration-200
                   ${isButtonDisabled 
                     ? "cursor-not-allowed opacity-50" 
                     : "hover:bg-gray-800"
@@ -304,23 +304,23 @@ const ProductDetails = ({ productId }) => {
               </button>
 
               {/* Product Characteristics */}
-              <div className="mt-6">
-                <h3 className="text-xl font-semibold mb-4">Characteristics:</h3>
-                <table className="w-full text-left border border-gray-200 rounded-lg overflow-hidden">
+              <div className="mt-4">
+                <h3 className="text-base font-semibold mb-2">Characteristics:</h3>
+                <table className="w-full text-left border border-gray-200 rounded-lg overflow-hidden text-xs">
                   <tbody>
                     <tr className="bg-gray-50">
-                      <td className="p-3 font-medium text-gray-700 border-b border-gray-200">
+                      <td className="p-2 font-medium text-gray-700 border-b border-gray-200">
                         Brand:
                       </td>
-                      <td className="p-3 text-gray-900 border-b border-gray-200">
+                      <td className="p-2 text-gray-900 border-b border-gray-200">
                         {selectedProduct.brand}
                       </td>
                     </tr>
                     <tr>
-                      <td className="p-3 font-medium text-gray-700">
+                      <td className="p-2 font-medium text-gray-700">
                         Material:
                       </td>
-                      <td className="p-3 text-gray-900">
+                      <td className="p-2 text-gray-900">
                         {selectedProduct.material}
                       </td>
                     </tr>
@@ -331,11 +331,11 @@ const ProductDetails = ({ productId }) => {
           </div>
 
           {/* Similar Products Section */}
-          <div className="mt-20">
-            <h2 className="text-2xl text-center font-medium mb-8">
+          <div className="mt-10">
+            <h2 className="text-3xl text-center font-bold mb-4">
               You May Also Like
             </h2>
-            <div className="[&_.w-full]:w-60 [&>div]:gap-10 [&_img]:rounded-md">
+            <div className="[&_.w-full]:w-40 [&>div]:gap-6 [&_img]:rounded-md">
               <ProductGrid products={similarProducts} loading={loading} error={error} />
             </div>
           </div>

@@ -38,7 +38,10 @@ A modern, full-stack e-commerce platform built for security, scalability, and a 
 
 ## 2. 🚀 Features
 
-- User authentication with JWT
+- User authentication with JWT & Auth0 (social login, secure registration, multi-factor authentication)
+- Secure password hashing and storage
+- HTTPS enforced for all local development and production traffic
+- Protection against common web vulnerabilities (XSS, CSRF, brute force)
 - Product listing, search, and filtering
 - Shopping cart & checkout
 - Admin dashboard (manage products, orders, users)
