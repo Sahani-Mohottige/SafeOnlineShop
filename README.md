@@ -110,27 +110,30 @@ Follow these steps to set up Safe Online Shop locally:
 
 3. **Configure Environment Variables & Secrets**
    - Create a `.env` file in both `Backend` and `Frontend` folders. Use `.env.example` as a template.
-   
    - Example values to set:
      - **Backend (`/Backend/.env`):**
        ```
+       PORT=3001
        MONGO_URL=your_mongodb_connection_string
        JWT_SECRET=your_jwt_secret
+       NODE_ENV=development
        CLOUDINARY_CLOUD_NAME=your_cloudinary_name
        CLOUDINARY_API_KEY=your_cloudinary_api_key
        CLOUDINARY_API_SECRET=your_cloudinary_api_secret
-       PORT=3001
        AUTH0_DOMAIN=your_auth0_domain
        AUTH0_AUDIENCE=your_auth0_api_identifier
        ```
      - **Frontend (`/Frontend/.env`):**
        ```
-       VITE_BACKEND_URL=https://localhost:3001
+       PORT=5173
+       VITE_BACKEND_URL=http://localhost:3001
        VITE_AUTH0_DOMAIN=your_auth0_domain
        VITE_AUTH0_CLIENT_ID=your_auth0_client_id
        VITE_AUTH0_API_IDENTIFIER=your_auth0_api_identifier
        ```
    - Replace all placeholder values with your own credentials and secrets. For Auth0, get these from your Auth0 dashboard.
+   - The real values are included in the json file (submitted via ekel).
+   - For security reasons, only placeholders are shown here in the README.
 
 4. **Set Up SSL Certificates for Local HTTPS**
    - Self-signed SSL certificates are required for secure local development.
