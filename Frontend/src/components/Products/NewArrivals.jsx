@@ -22,10 +22,10 @@ useEffect(() => {
   const fetchNewArrivals = async () => {
     try {
       setLoading(true);
-     // console.log("Fetching new arrivals from:", `${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`);
+  // console.log("Fetching new arrivals from:", `${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`);
       const response = await axios.get(`${import.meta.env.VITE_BACKEND_URL}/api/products/new-arrivals`
       );
-     // console.log("New arrivals response:", response.data);
+  // console.log("New arrivals response:", response.data);
       setNewArrivals(response.data);
       setError(null);
     } catch (error) {

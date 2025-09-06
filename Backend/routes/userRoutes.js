@@ -32,7 +32,7 @@ router.post(
     }
     const { name, email, password } = req.body;
     try {
-      console.log("Database connection state:", mongoose.connection.readyState);
+  // console.log("Database connection state:", mongoose.connection.readyState);
       // Check if user already exists
       const existingUser = await User.findOne({ email });
       if (existingUser) return res.status(400).json({ message: "User already exists" });
@@ -100,7 +100,7 @@ router.get("/profile", protect, async (req, res) => {
       return res.status(500).json({ message: "User not found in request context" });
     }
     // Log user object for debugging
-    console.log("[DEBUG] /api/users/profile: req.user:", req.user);
+  // console.log("[DEBUG] /api/users/profile: req.user:", req.user);
     res.json(req.user);
   } catch (err) {
     console.error("[DEBUG] /api/users/profile: Unexpected error:", err);

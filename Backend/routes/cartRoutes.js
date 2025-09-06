@@ -128,7 +128,7 @@ router.put(
     }
     const { productId, quantity, size, color, guestId, userId } = req.body;
     // Debug log incoming request
-    console.log("PUT /api/cart request body:", req.body);
+  // console.log("PUT /api/cart request body:", req.body);
     try {
       let cart = await getCart(userId, guestId);
       if (!cart) {

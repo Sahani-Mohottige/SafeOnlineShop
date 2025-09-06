@@ -71,9 +71,9 @@ export const updateCartItemQuantity = createAsyncThunk(
     const url = `${import.meta.env.VITE_BACKEND_URL}/api/cart`;
     try {
       // Debug log request payload and headers
-      console.log("updateCartItemQuantity request:", {
-        productId, quantity, userId, guestId, size, color, token
-      });
+      // console.log("updateCartItemQuantity request:", {
+      //   productId, quantity, userId, guestId, size, color, token
+      // });
       const response = await axios.put(url, {
         productId,
         quantity,
@@ -84,7 +84,7 @@ export const updateCartItemQuantity = createAsyncThunk(
       }, {
         headers: token && token.length > 0 ? { Authorization: `Bearer ${token}` } : undefined
       });
-      console.log("updateCartItemQuantity response:", response.data);
+     // console.log("updateCartItemQuantity response:", response.data);
       return response.data;
     } catch (error) {
       console.error("updateCartItemQuantity error:", error?.message || error);

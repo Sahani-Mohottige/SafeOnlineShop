@@ -60,7 +60,7 @@ function PurchaseForm({ onPurchase }) {
         return;
       }
       // Basic suspicious input check (block <script> tags)
-      if (/\<\s*script/i.test(value)) {
+      if (/<\s*script/i.test(value)) {
         setError("Message cannot contain script tags.");
         return;
       }
@@ -112,7 +112,7 @@ function PurchaseForm({ onPurchase }) {
         deliveryLocation: form.deliveryLocation || "Colombo",
         message: form.message
       };
-    //  console.log("Order payload:", payload);
+  //  console.log("Order payload:", payload);
   const res = await fetch(`${API_URL}/api/orders`, {
         method: "POST",
         headers: {
