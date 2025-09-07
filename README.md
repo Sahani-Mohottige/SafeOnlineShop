@@ -109,7 +109,7 @@ Follow these steps to set up Safe Online Shop locally:
      ```
 
 3. **Configure Environment Variables & Secrets**
-   - Create a `.env` file in both `Backend` and `Frontend` folders. Use `.env.example` as a template.
+   - I have created `.env` files in both `Backend` and `Frontend` folders.
    - Example values to set:
      - **Backend (`/Backend/.env`):**
        ```
@@ -132,8 +132,7 @@ Follow these steps to set up Safe Online Shop locally:
        VITE_AUTH0_API_IDENTIFIER=your_auth0_api_identifier
        ```
    - Replace all placeholder values with your own credentials and secrets. For Auth0, get these from your Auth0 dashboard.
-   - The real values are included in the json file (submitted via ekel).
-   - For security reasons, only placeholders are shown here in the README.
+   - The real values used by me are included in the json file (submitted via ekel).
 
 4. **Set Up SSL Certificates for Local HTTPS**
    - Self-signed SSL certificates are required for secure local development.
